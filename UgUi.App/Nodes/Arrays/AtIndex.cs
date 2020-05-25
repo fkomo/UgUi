@@ -33,6 +33,8 @@ namespace Ujeby.UgUi.Operations.Arrays
 		{
 			if (Array != null && Index < Array.Length)
 				Value = Array[Index];
+			else
+				Value = null;
 		}
 
 		public override string[] GetInputs()

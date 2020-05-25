@@ -118,6 +118,7 @@
     <Compile Include="Nodes\Abstract\Check.cs" />
     <Compile Include="Nodes\Abstract\UnaryOperator.cs" />
     <Compile Include="Core\Attributes.cs" />
+    <Compile Include="Nodes\Arrays\Count.cs" />
     <Compile Include="Nodes\Arrays\AtIndex.cs" />
     <Compile Include="Nodes\Crypto\SHA512.cs" />
     <Compile Include="Nodes\Crypto\SHA384.cs" />
@@ -145,6 +146,8 @@
     <Compile Include="Nodes\Strings\LastIndexOf.cs" />
     <Compile Include="Nodes\Strings\FirstIndexOf.cs" />
     <Compile Include="Nodes\Strings\Contains.cs" />
+    <Compile Include="Nodes\Strings\Join.cs" />
+    <Compile Include="Nodes\Strings\Split.cs" />
     <Compile Include="Nodes\Strings\ToLower.cs" />
     <Compile Include="Nodes\Strings\ToUpper.cs" />
     <Compile Include="Nodes\Strings\Length.cs" />

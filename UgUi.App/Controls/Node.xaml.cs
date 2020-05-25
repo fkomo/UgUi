@@ -367,6 +367,7 @@ namespace Ujeby.UgUi.Controls
 			if (anchor == null)
 				return;
 
+			// TODO input anchor color is not set when workspace is imported from file
 			var inputColor = ConnectionsFrom.SingleOrDefault(c => c.RightAnchorName == name)?.Left?.CustomColor ?? InputBackground;
 
 			// set anchor color
@@ -750,7 +751,7 @@ namespace Ujeby.UgUi.Controls
 							Name = InputValuePrefix + inputName,
 							IsReadOnly = readOnly,
 							FontFamily = new FontFamily("Consolas"),
-							MinWidth = 64,
+							MinWidth = 128,
 
 							TextWrapping = TextWrapping.Wrap,
 							VerticalScrollBarVisibility = ScrollBarVisibility.Auto,

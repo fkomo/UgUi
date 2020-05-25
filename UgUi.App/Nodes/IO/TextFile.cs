@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using Ujeby.Common.Tools;
 using Ujeby.UgUi.Core;
 using Ujeby.UgUi.Operations.Abstract;
@@ -8,6 +9,9 @@ namespace Ujeby.UgUi.Operations.IO
 	[NodeInfo]
 	public class TextFile : _File<string>
 	{
+		[Output(AnchorOnly = true)]
+		public string[] ReadLines { get; protected set; }
+
 		public override void Execute()
 		{
 			try
@@ -21,7 +25,10 @@ namespace Ujeby.UgUi.Operations.IO
 
 				// read
 				if (!string.IsNullOrEmpty(Path) && File.Exists(Path))
+				{
 					Read = File.ReadAllText(path, System.Text.Encoding.UTF8);
+					ReadLines = File.ReadAllLines(path, System.Text.Encoding.UTF8); 
+				}
 
 				Length = Read?.Length ?? 0;
 			}
@@ -29,6 +36,15 @@ namespace Ujeby.UgUi.Operations.IO
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		public override string[] GetOutputs()
+		{
+			return base.GetOutputs().Concat(
+				new string[]
+				{
+					$"{ nameof(ReadLines) }.{ nameof(ReadLines.Length) }:{ ReadLines.Length.ToString() }",
+				}).ToArray();
 		}
 	}
 }

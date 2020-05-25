@@ -13,7 +13,6 @@ namespace Ujeby.UgUi.Operations.Generators
 			set 
 			{
 				SetField(ref from, value, nameof(From));
-				Value = from; 
 			}
 		}
 
@@ -25,7 +24,6 @@ namespace Ujeby.UgUi.Operations.Generators
 			set
 			{
 				SetField(ref to, value, nameof(To));
-				Value = from;
 			}
 		}
 
@@ -39,8 +37,10 @@ namespace Ujeby.UgUi.Operations.Generators
 
 		public override void Execute()
 		{
-			if (To > From && Value < To)
+			if (To > From && (Value + 1) < To)
 				Value++;
+			else
+				Value = From;
 		}
 
 		public override string[] GetInputs()

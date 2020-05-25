@@ -73,7 +73,7 @@ namespace Ujeby.UgUi.Core
 
 		protected static string SerializeProperty(string name, string value)
 		{
-			return $"\"{ name }\":\"{ value }\"";
+			return $"\"{ name }\":{ JsonConvert.ToString(value) }";
 		}
 
 		public string SerializeData()
