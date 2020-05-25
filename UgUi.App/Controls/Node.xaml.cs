@@ -337,6 +337,22 @@ namespace Ujeby.UgUi.Controls
 			Hilighted = hilight;
 		}
 
+		/// <summary>
+		/// resets input anchor background color based on connection
+		/// </summary>
+		/// <param name="name"></param>
+		public void ResetInputAnchorColor(string name)
+		{
+			var anchor = GetElementByName(name);
+			if (anchor == null)
+				return;
+
+			var inputColor = ConnectionsFrom.SingleOrDefault(c => c.RightAnchorName == name)?.Left?.CustomColor ?? InputBackground;
+
+			// set anchor color
+			(anchor as Rectangle).Fill = new SolidColorBrush(inputColor);
+		}
+
 		protected void HilightInputAnchorOn(object sender, MouseEventArgs e)
 		{
 			var anchorName = (sender as FrameworkElement).Name;
@@ -367,7 +383,6 @@ namespace Ujeby.UgUi.Controls
 			if (anchor == null)
 				return;
 
-			// TODO input anchor color is not set when workspace is imported from file
 			var inputColor = ConnectionsFrom.SingleOrDefault(c => c.RightAnchorName == name)?.Left?.CustomColor ?? InputBackground;
 
 			// set anchor color

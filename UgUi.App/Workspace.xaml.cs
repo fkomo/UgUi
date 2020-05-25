@@ -240,7 +240,7 @@ namespace Ujeby.UgUi
 						if (!string.IsNullOrEmpty(node.Data))
 							(newNode.NodeInstance as ISerializableNode).DeserializeData(node.Data);
 
-						Log.WriteLine($"{ node.TypeName }@[{ node.Position }]");
+						//Log.WriteLine($"{ node.TypeName }@[{ node.Position }]");
 
 						// select new node
 						newNode.Select(true);
@@ -265,8 +265,10 @@ namespace Ujeby.UgUi
 							var newConnection = new Connection(leftControl, rightControl, connection.LeftAnchorName, connection.RightAnchorName);
 							newConnection.Update(fromPosition, toPosition);
 
-							Log.WriteLine($"{ newConnection }");
+							//Log.WriteLine($"{ newConnection }");
 							addConnection(newConnection);
+
+							newConnection.Right.ResetInputAnchorColor(newConnection.RightAnchorName);
 						}
 					}
 
@@ -284,7 +286,7 @@ namespace Ujeby.UgUi
 			get
 			{
 				var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				var userDataFolder = System.IO.Path.Combine(roaming, "Ujeby", "gUi" + (Debugger.IsAttached ? "-debug" : null));
+				var userDataFolder = System.IO.Path.Combine(roaming, "Ujeby", "UgUi" + (Debugger.IsAttached ? "-debug" : null));
 
 				if (!System.IO.Directory.Exists(userDataFolder))
 					System.IO.Directory.CreateDirectory(userDataFolder);
@@ -335,8 +337,6 @@ namespace Ujeby.UgUi
 		{
 			try
 			{
-				// TODO open/import workspace at mouse position
-
 				if (menuItemId == ContextMenuItemId.Remove)
 				{
 					foreach (var control in contextData as FrameworkElement[])
@@ -369,7 +369,7 @@ namespace Ujeby.UgUi
 					}
 
 					RemoveAllControls();
-					Open(new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
+					Open(Mouse.GetPosition(WorkspaceCanvas), AddControl, AddConnection);
 				}
 			}
 			catch (Exception ex)

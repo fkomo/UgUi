@@ -37,10 +37,20 @@ namespace Ujeby.UgUi.Operations.Generators
 
 		public override void Execute()
 		{
-			if (To > From && (Value + 1) < To)
-				Value++;
-			else
-				Value = From;
+			if (To > From)
+			{
+				if (Value + 1 < To)
+					Value++;
+				else
+					Value = From;
+			}
+			else if (To < From)
+			{
+				if (Value - 1 > To)
+					Value--;
+				else
+					Value = From;
+			}
 		}
 
 		public override string[] GetInputs()
