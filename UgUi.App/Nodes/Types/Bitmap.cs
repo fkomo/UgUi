@@ -26,6 +26,7 @@ namespace Ujeby.UgUi.Operations.Types
 
 		private BitmapSource output = null;
 		[Output(NoAnchor = true, DisplayName = "", ReadOnly = true)]
+		[ImageBindings(Width = "SizeX", Height = "SizeY")]
 		public BitmapSource Output 
 		{
 			get { return output; }
@@ -49,26 +50,14 @@ namespace Ujeby.UgUi.Operations.Types
 			}
 			else
 				Output = null;
+		}
 
-			//using (new TimedBlock($"{ typeof(Image).Name }.{ Utils.GetCurrentMethodName() }"))
-			//{
-			//	var bitmapImage = new BitmapImage(new Uri(Filename, UriKind.Absolute));
-
-			//	OutputDimensionsWidth = bitmapImage.PixelWidth;
-			//	OutputDimensionsHeight = bitmapImage.PixelHeight;
-			//	base.Execute();
-
-			//	var pixels = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
-			//	bitmapImage.CopyPixels(pixels, bitmapImage.PixelWidth * 4, 0);
-
-			//	for (var i = 0; i < Output.Length; i++)
-			//	{
-			//		Output[i].X = (double)pixels[i * 4 + 0] / 255.0;
-			//		Output[i].Y = (double)pixels[i * 4 + 1] / 255.0;
-			//		Output[i].Z = (double)pixels[i * 4 + 2] / 255.0;
-			//		Output[i].W = (double)pixels[i * 4 + 3] / 255.0;
-			//	}
-			//}
+		public override string[] GetInputs()
+		{
+			return new string[]
+			{
+				$"{ nameof(Size) }:{ Size?.ToString() }" ,
+			};
 		}
 	}
 }

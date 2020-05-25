@@ -160,6 +160,7 @@
     <Compile Include="Nodes\Strings\SubString.cs" />
     <Compile Include="Nodes\Math\Dot.cs" />
     <Compile Include="Nodes\Generators\Guid.cs" />
+    <Compile Include="Nodes\Types\Boolean.cs" />
     <Compile Include="Nodes\Types\String.cs" />
     <Compile Include="Nodes\Types\Scalar.cs" />
     <Compile Include="Nodes\Types\Vector2.cs" />

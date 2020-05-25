@@ -127,4 +127,10 @@ namespace Ujeby.UgUi.Core
 		/// </summary>
 		public bool NoAnchor { get; set; } = false;
 	}
+
+	public class ImageBindingsAttribute : Attribute
+	{
+		public string Width { get; set; }
+		public string Height { get; set; }
+	}
 }

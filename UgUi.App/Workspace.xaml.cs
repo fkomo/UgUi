@@ -310,6 +310,9 @@ namespace Ujeby.UgUi
 				WorkspaceContextMenu.Visibility = Visibility.Collapsed;
 				WorkspaceCanvas.Children.Add(WorkspaceContextMenu);
 				Canvas.SetZIndex(WorkspaceContextMenu, int.MaxValue);
+
+				// collapse messages box
+				ToggleMessagesBoxCollapse();
 			}
 			catch (Exception ex)
 			{

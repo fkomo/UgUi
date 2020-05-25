@@ -338,6 +338,33 @@ namespace Ujeby.UgUi.Controls
 						Grid.SetColumn(colorElement, 2);
 						mainPanel.Children.Add(colorElement);
 					}
+					// TODO CheckBox input
+					//else if (inputProperty.PropertyType == typeof(bool))
+					//{
+					//	var checkBox = new CheckBox
+					//	{
+					//		//Background = new SolidColorBrush(InputBackground),
+					//		//Foreground = new SolidColorBrush(TextForeground),
+					//		BorderThickness = new Thickness(1),
+					//		Name = InputValuePrefix + inputName,
+					//		FontFamily = new FontFamily("Consolas"),
+					//		HorizontalContentAlignment = HorizontalAlignment.Center,
+					//		VerticalContentAlignment = VerticalAlignment.Center,
+					//		VerticalAlignment = VerticalAlignment.Center,
+					//		HorizontalAlignment = HorizontalAlignment.Center,
+					//	};
+
+					//	var binding = new Binding(inputProperty.Name)
+					//	{
+					//		Mode = BindingMode.OneWay,
+					//	};
+					//	checkBox.SetBinding(CheckBox.IsCheckedProperty, binding);
+
+					//	Grid.SetRow(checkBox, row);
+					//	Grid.SetColumn(checkBox, 2);
+					//	Grid.SetColumnSpan(checkBox, mainPanel.ColumnDefinitions.Count - 1);
+					//	mainPanel.Children.Add(checkBox);
+					//}
 					else
 					{
 						var textbox = new TextBox
@@ -447,34 +474,28 @@ namespace Ujeby.UgUi.Controls
 
 					if (outputProperty.PropertyType == typeof(BitmapSource))
 					{
-						var image = new Image
+						var imageBorder = new Border
 						{
-							Width = 256,
-							Height = 256,
+							BorderThickness = new Thickness(1),
+							BorderBrush = new SolidColorBrush(InputBorder),
 						};
+						var image = new Image();
+						imageBorder.Child = image;
 
-						var binding = new Binding(outputProperty.Name)
+						image.SetBinding(Image.SourceProperty, new Binding(outputProperty.Name) { Mode = BindingMode.OneWay });
+
+						var widthBinding = AttributeHelper.GetValue<ImageBindingsAttribute, string>(outputProperty, nameof(ImageBindingsAttribute.Width));
+						var heightBinding = AttributeHelper.GetValue<ImageBindingsAttribute, string>(outputProperty, nameof(ImageBindingsAttribute.Height));
+						if (!string.IsNullOrEmpty(widthBinding) && !string.IsNullOrEmpty(heightBinding))
 						{
-							Mode = BindingMode.OneWay
-						};
-						image.SetBinding(Image.SourceProperty, binding);
+							image.SetBinding(Image.WidthProperty, new Binding(widthBinding) { Mode = BindingMode.OneWay });
+							image.SetBinding(Image.HeightProperty, new Binding(heightBinding) { Mode = BindingMode.OneWay });
+						}
 
-						var binding2 = new Binding("SizeX")
-						{
-							Mode = BindingMode.OneWay
-						};
-						image.SetBinding(Image.WidthProperty, binding2);
-
-						var binding3 = new Binding("SizeY")
-						{
-							Mode = BindingMode.OneWay
-						};
-						image.SetBinding(Image.HeightProperty, binding3);
-
-						Grid.SetRow(image, row);
-						Grid.SetColumn(image, 1);
-						Grid.SetColumnSpan(image, mainPanel.ColumnDefinitions.Count - 2);
-						mainPanel.Children.Add(image);
+						Grid.SetRow(imageBorder, row);
+						Grid.SetColumn(imageBorder, 1);
+						Grid.SetColumnSpan(imageBorder, mainPanel.ColumnDefinitions.Count - 2);
+						mainPanel.Children.Add(imageBorder);
 					}
 					else
 					{
