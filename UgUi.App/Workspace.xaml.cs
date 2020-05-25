@@ -11,8 +11,6 @@ using System.Linq;
 using System.Windows.Threading;
 using System.ComponentModel;
 using Ujeby.UgUi.Core;
-using System.Xml;
-using System.Web.UI.WebControls;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Win32;
@@ -337,16 +335,24 @@ namespace Ujeby.UgUi
 		{
 			try
 			{
-				if (menuItemId == ContextMenuItemId.Remove)
+				if (menuItemId == ContextMenuItemId.Run)
+					NewSimulation();
+
+				else if (menuItemId == ContextMenuItemId.Remove)
 				{
 					foreach (var control in contextData as FrameworkElement[])
 						RemoveControl(control as Node);
+
+					NewSimulation();
 				}
 				else if (menuItemId == ContextMenuItemId.Clear)
-				{
 					RemoveAllControls();
-				}
-				else if (menuItemId == ContextMenuItemId.SaveWorkspaceAs)
+
+				else if (menuItemId == ContextMenuItemId.ToggleCollapse)
+					foreach (var node in Nodes)
+						node.ToggleCollapse();
+
+				else if (menuItemId == ContextMenuItemId.SaveWorkspace)
 					Save(Nodes.Select(c => c as FrameworkElement).ToArray());
 
 				else if (menuItemId == ContextMenuItemId.SaveSelectionAs)
@@ -540,8 +546,11 @@ namespace Ujeby.UgUi
 							NewConnection.Right.AddConnectionFrom(NewConnection);
 						}
 						else
+						{
 							// remove existing connection
 							NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
+							NewSimulation();
+						}
 
 						NewConnection = null;
 					}
@@ -689,29 +698,39 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private void RunSimulation(object sender, DoWorkEventArgs e)
+		private void OnSimulation(object sender, DoWorkEventArgs e)
 		{
 			try
 			{
-				var simulationId = Guid.NewGuid();
+				var transactionId = Guid.NewGuid();
 
 				Dispatcher.Invoke(() =>
 				{
-					StatusBarInformation.Content = $"{ DateTime.Now.ToLongTimeString() } Running ({ simulationId.ToString("N") }) ...";
+					Log.WriteLine($"{ transactionId.ToString("N") } Started ...");
+				});
+
+				Dispatcher.Invoke(() =>
+				{
+					StatusBarInformation.Content = $"{ DateTime.Now.ToLongTimeString() } Running ({ transactionId.ToString("N") }) ...";
 				});
 
 				Dispatcher.Invoke(() =>
 				{
 					for (var i = 0; i < WorkspaceCanvas.Children.Count; i++)
 					{
-						(WorkspaceCanvas.Children[i] as Node)?.Execute(simulationId);
+						(WorkspaceCanvas.Children[i] as Node)?.Execute(transactionId);
 						(sender as BackgroundWorker).ReportProgress(Convert.ToInt32(((double)(i + 1) / WorkspaceCanvas.Children.Count) * 100));
 					}
 				});
 
 				Dispatcher.Invoke(() =>
 				{
-					StatusBarInformation.Content = $"{ DateTime.Now.ToLongTimeString() } Completed ({ simulationId.ToString("N") })";
+					Log.WriteLine($"{ transactionId.ToString("N") } ... Finished");
+				});
+
+				Dispatcher.Invoke(() =>
+				{
+					StatusBarInformation.Content = $"{ DateTime.Now.ToLongTimeString() } Ready ({ transactionId.ToString("N") })";
 				});
 			}
 			catch (Exception ex)
@@ -877,19 +896,7 @@ namespace Ujeby.UgUi
 			{
 				// run
 				if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.R)
-				{
-					MessagesBox.Text = null;
-
-					var worker = new BackgroundWorker
-					{
-						WorkerReportsProgress = true
-					};
-
-					worker.DoWork += RunSimulation;
-					worker.ProgressChanged += SimulationProgressChanged;
-
-					worker.RunWorkerAsync();
-				}
+					NewSimulation();
 
 				// select all
 				else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.A)
@@ -915,6 +922,21 @@ namespace Ujeby.UgUi
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private void NewSimulation()
+		{
+			MessagesBox.Text = null;
+
+			var worker = new BackgroundWorker
+			{
+				WorkerReportsProgress = true
+			};
+
+			worker.DoWork += OnSimulation;
+			worker.ProgressChanged += SimulationProgressChanged;
+
+			worker.RunWorkerAsync();
 		}
 
 		internal void MoveControls(Node elementControl, Vector delta)

@@ -121,5 +121,10 @@ namespace Ujeby.UgUi.Core
 		/// if ReadOnly is true, user is not able to change value
 		/// </summary>
 		public bool ReadOnly { get; set; } = false;
+
+		/// <summary>
+		/// if true, there wont be no output anchor
+		/// </summary>
+		public bool NoAnchor { get; set; } = false;
 	}
 }

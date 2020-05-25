@@ -7,6 +7,12 @@
              xmlns:behaviors="clr-namespace:Ujeby.UgUi.Behaviors"
              mc:Ignorable="d">
 
+	<UserControl.Resources>
+		<Style x:Key="{x:Type ToolTip}" TargetType="{x:Type ToolTip}">
+			<Setter Property="FontFamily" Value="Consolas"/>
+		</Style>
+	</UserControl.Resources>
+
 	<Grid Name="MainPanel">
 	</Grid>
 

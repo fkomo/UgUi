@@ -131,6 +131,7 @@
     <Compile Include="Nodes\IO\BinaryFile.cs" />
     <Compile Include="Nodes\IO\DirectoryExists.cs" />
     <Compile Include="Nodes\IO\FileExists.cs" />
+    <Compile Include="Nodes\IO\ImageFile.cs" />
     <Compile Include="Nodes\IO\TextFile.cs" />
     <Compile Include="Nodes\Math\Pow.cs" />
     <Compile Include="Nodes\Math\Max.cs" />

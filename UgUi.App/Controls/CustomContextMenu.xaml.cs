@@ -10,9 +10,11 @@ namespace Ujeby.UgUi.Controls
 	{
 		HeaderName = 0,
 
-		SaveWorkspaceAs,
+		Run,
+		SaveWorkspace,
 		OpenWorkspace,
 		ImportWorkspace,
+		ToggleCollapse,
 		Clear,
 
 		Separator,
@@ -34,34 +36,37 @@ namespace Ujeby.UgUi.Controls
 	/// </summary>
 	public partial class CustomContextMenu : UserControl
 	{
-		public Dictionary<ContextId, Dictionary<ContextMenuItemId, string>> Context = new Dictionary<ContextId, Dictionary<ContextMenuItemId, string>>
+		public Dictionary<ContextId, KeyValuePair<ContextMenuItemId, string>[]> Context = new Dictionary<ContextId, KeyValuePair<ContextMenuItemId, string>[]>
 		{
 			{
-				ContextId.Workspace, new Dictionary<ContextMenuItemId, string>
+				ContextId.Workspace, new KeyValuePair<ContextMenuItemId, string>[]
 				{
-					{ ContextMenuItemId.HeaderName, "Workspace" },
-					{ ContextMenuItemId.SaveWorkspaceAs, "Save Workspace As..." },
-					{ ContextMenuItemId.OpenWorkspace, "Open Workspace" },
-					{ ContextMenuItemId.ImportWorkspace, "Import Workspace" },
-					{ ContextMenuItemId.Separator, null },
-					{ ContextMenuItemId.Clear, "Clear" },
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Workspace"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Run, "Run"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveWorkspace, "Save Workspace" ),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.OpenWorkspace, "Open Workspace"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ImportWorkspace, "Merge"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ToggleCollapse, "Toggle Collapse"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Clear, "Clear"),
 				}
 			},
 			{
-				ContextId.Node, new Dictionary<ContextMenuItemId, string>
+				ContextId.Node, new KeyValuePair<ContextMenuItemId, string>[]
 				{
-					{ ContextMenuItemId.HeaderName, "Node" },
-					{ ContextMenuItemId.Remove, "Remove" },
-					{ ContextMenuItemId.Rename, "Rename" },
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Node"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Remove, "Remove"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Rename, "Rename"),
 				}
 			},
 			{
-				ContextId.MultipleNodes, new Dictionary<ContextMenuItemId, string>
+				ContextId.MultipleNodes, new KeyValuePair<ContextMenuItemId, string>[]
 				{
-					{ ContextMenuItemId.HeaderName, "Multiple Nodes" },
-					{ ContextMenuItemId.Remove, "Remove" },
-					{ ContextMenuItemId.Separator, null },
-					{ ContextMenuItemId.SaveSelectionAs, "Save Selection As..." },
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Multiple Nodes"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Remove, "Remove"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveSelectionAs, "Save Selection As..."),
 				}
 			},
 		};
@@ -75,7 +80,7 @@ namespace Ujeby.UgUi.Controls
 			MenuItemClicked = menuItemClicked;
 		}
 
-		private void ChangeMenu(Dictionary<ContextMenuItemId, string> items)
+		private void ChangeMenu(KeyValuePair<ContextMenuItemId, string>[] items)
 		{
 			MenuList.Items.Clear();
 			foreach (var item in items)

@@ -15,28 +15,7 @@ namespace Ujeby.UgUi.Common
 				var inputType = input.GetType();
 				if (inputType != outputType)
 				{
-					if (inputType == typeof(v4[]))
-					{
-						var v4Value = input as v4[];
-						if (outputType == typeof(string))
-							return v4Value.First().X.ToString("F4").Replace(',', '.');
-
-						if (outputType == typeof(double))
-							return v4Value.First().X;
-
-						if (outputType == typeof(Size))
-							return new Size(v4Value.First().X, v4Value.First().Y);
-
-						if (outputType == typeof(int))
-							return (int)v4Value.First().X;
-
-						if (outputType == typeof(double[]))
-							return v4Value.Select(i => i.X).ToArray();
-					}
-					else if (inputType == typeof(double[]))
-						input = (input as double[]).FirstOrDefault();
-
-					else if (inputType == typeof(Size))
+					if (inputType == typeof(Size))
 					{
 						var sizeValue = input as Size?;
 						if (outputType == typeof(string))
@@ -178,10 +157,39 @@ namespace Ujeby.UgUi.Common
 						}
 					}
 
+					//else if (inputType == typeof(byte[]))
+					//{
+					//	if (outputType == typeof(object[]))
+					//		return (input as byte[]).ToArray<object>();
+					//}
+
 					else if (inputType == typeof(string[]))
 					{
 						if (outputType == typeof(object[]))
 							return (input as string[]).ToArray<object>();
+					}
+
+					else if (inputType == typeof(v4[]))
+					{
+						var v4Value = input as v4[];
+
+						if (outputType == typeof(string))
+							return v4Value.First().X.ToString("F4").Replace(',', '.');
+
+						if (outputType == typeof(double))
+							return v4Value.First().X;
+
+						if (outputType == typeof(Size))
+							return new Size(v4Value.First().X, v4Value.First().Y);
+
+						if (outputType == typeof(int))
+							return (int)v4Value.First().X;
+
+						if (outputType == typeof(double[]))
+							return v4Value.Select(i => i.X).ToArray();
+
+						if (outputType == typeof(object[]))
+							return (input as v4[]).ToArray<object>();
 					}
 				}
 			}
