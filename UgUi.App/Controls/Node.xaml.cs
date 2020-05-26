@@ -21,6 +21,24 @@ namespace Ujeby.UgUi.Controls
 	/// </summary>
 	public partial class Node : UserControl
 	{
+		// Create a custom routed event by first registering a RoutedEventID
+		// This event uses the bubbling routing strategy
+		public static readonly RoutedEvent ImpulseEvent = EventManager.RegisterRoutedEvent("Impulse", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Node));
+
+		// Provide CLR accessors for the event
+		public event RoutedEventHandler Impulse
+		{
+			add { AddHandler(ImpulseEvent, value); }
+			remove { RemoveHandler(ImpulseEvent, value); }
+		}
+
+		// This method raises the Tap event
+		void RaiseImpulseEvent()
+		{
+			var newEventArgs = new RoutedEventArgs(Node.ImpulseEvent);
+			RaiseEvent(newEventArgs);
+		}
+
 		public Node(INode nodeInstance)
 		{
 			NodeInstance = nodeInstance;
@@ -38,32 +56,22 @@ namespace Ujeby.UgUi.Controls
 		public const string LabelPrefix = "Label";
 		public const string InputValuePrefix = "Input";
 		public const string OutputValuePrefix = "Output";
-		public const string HeaderElementName = "Header";
-		public const string MainPanelElementName = "MainPanel";
 		public const string DefaultOutputAnchorName = "OutputAnchorArray";
-		public const string TitleElmentName = "Title";
 
-		public const int HeaderHeight = 24;
 		public const int AnchorSize = 16;
 		public const int DecimalPrecision = 4;
+
+		public const byte ControlTransparency = 0xee;
 
 		const int LOG_MAX_INPUT_LENGTH = 64;
 		const int LOG_MAX_OUTPUT_LENGTH = 64;
 
-		public const int BlurRadius = 8;
-
-		#endregion
-
-		private static Color? HilightColor { get; set; }// = Color.FromArgb(0xff, 0xcc, 0xcc, 0xcc);
-
-		public static byte ControlTransparency = 0xee;
-
 		public static Color InputBorder = Color.FromArgb(ControlTransparency, 0x20, 0x20, 0x20);
 		public static Color InputBackground = Color.FromArgb(0xff, 0x30, 0x30, 0x30);
-		public static Color ControlBackground = Color.FromArgb(ControlTransparency, 0x40, 0x40, 0x40);
-		public static Color HeaderBackground = Color.FromArgb(ControlTransparency, 0x50, 0x50, 0x50);
 		public static Color TextForeground = Color.FromArgb(0xff, 0xc0, 0xc0, 0xc0);
 		public static Color TextForegroundHilighted = Colors.White;
+
+		#endregion
 
 		/// <summary>
 		/// last transaction id
@@ -74,10 +82,8 @@ namespace Ujeby.UgUi.Controls
 		/// unique id
 		/// </summary>
 		public Guid Id { get; set; } = Guid.NewGuid();
-
 		public string CustomName { get; private set; }
 		public Color CustomColor { get; private set; }
-
 		public INode NodeInstance { get; protected set; } = null;
 
 		/// <summary>
@@ -86,11 +92,7 @@ namespace Ujeby.UgUi.Controls
 		/// <param name="mainColor"></param>
 		protected void InitializeControl(Type nodeType)
 		{
-			var mainPanel = FindName(MainPanelElementName) as Grid;
-			mainPanel.DataContext = NodeInstance;
-			mainPanel.Background = new SolidColorBrush(ControlBackground);
-			mainPanel.MouseEnter += ControlMouseEnter;
-			mainPanel.MouseLeave += ControlMouseLeave;
+			MainPanel.DataContext = NodeInstance;
 
 			var ignoredProperties = nodeType.CustomAttributes
 				.Where(a => a.AttributeType == typeof(IgnoredPropertyAttribute))
@@ -107,20 +109,9 @@ namespace Ujeby.UgUi.Controls
 
 			#region grid definition
 
-			// columns
-			mainPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(AnchorSize / 2) });               // input anchor
-			mainPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = AnchorSize / 4 });   // input label
-			mainPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = 64 });               // property value representation - TextBox for example
-			mainPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = AnchorSize / 4 });   // output label
-			mainPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(AnchorSize / 2) });               // output anchor
-
-			// rows
-			mainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                   // header
-			mainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(AnchorSize / 2) });    // header divider
-
 			// add rows for all input properties
 			for (var i = 0; i < inputProperties.Count(); i++)
-				mainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+				MainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
 			// number of input rows that have free output side
 			var inputAnchorsOnly = inputProperties.Count(ip => AttributeHelper.GetValue<InputAttribute, bool>(ip, nameof(InputAttribute.AnchorOnly)) && !AttributeHelper.GetValue<InputAttribute, bool>(ip, nameof(InputAttribute.OutputAnchor)));
@@ -133,84 +124,20 @@ namespace Ujeby.UgUi.Controls
 
 			// add rows for some output properties
 			for (var i = 0; i < outputRowsToAdd; i++)
-				mainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+				MainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-			mainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(AnchorSize / 2) });    // bottom
+			MainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(AnchorSize / 2) });    // bottom
 
 			#endregion
 
 			#region header
 
 			CustomName = AttributeHelper.GetValue<NodeInfoAttribute, string>(NodeInstance.GetType(), nameof(NodeInfoAttribute.DisplayName)) ?? NodeInstance.GetType().Name;
-
 			var colorValues = BitConverter.GetBytes(CustomName.GetHashCode());
 			CustomColor = Color.FromArgb(0xff, colorValues[1], colorValues[2], colorValues[3]);
 
-			var header = new Border
-			{
-				Background = new LinearGradientBrush(CustomColor, Color.Multiply(CustomColor, (float)0.75), new Point(0, 1), new Point(1, 0)),
-				BorderBrush = new SolidColorBrush(Colors.Black),
-				BorderThickness = new Thickness(1),
-				Height = HeaderHeight,
-				Name = HeaderElementName,
-			};
-			header.MouseLeftButtonDown += Header_MouseLeftButtonDown;
-
-			// title
-			header.Child = new TextBlock
-			{
-				Name = TitleElmentName,
-				Text = CustomName,
-				//Foreground = new SolidColorBrush(Color.FromRgb(0xc0, 0xc0, 0xc0)),
-				HorizontalAlignment = HorizontalAlignment.Center,
-				VerticalAlignment = VerticalAlignment.Center,
-				FontFamily = new FontFamily("Consolas"),
-			};
-			//header.Child = new DockPanel();
-
-			//// title
-			//(header.Child as DockPanel).Children.Add(
-			//	new TextBlock
-			//	{
-			//		Text = (GetAttributeNamedValue(elementInfo, nameof(FunctionInfoAttribute.DisplayName)) as string ?? Function.GetType().Name),
-			//		VerticalAlignment = VerticalAlignment.Center,
-			//		HorizontalAlignment = HorizontalAlignment.Center,
-			//		Margin = new Thickness(4, 0, 0, 0),
-			//	});
-
-			//// collapse button
-			//var closeButton = new Rectangle
-			//{
-			//	Fill = new SolidColorBrush(mainColor),
-			//	Stroke = new SolidColorBrush(Colors.Black),
-			//	VerticalAlignment = VerticalAlignment.Center,
-			//	HorizontalAlignment = HorizontalAlignment.Right,
-			//	Margin = new Thickness(0, 0, 3, 0),
-			//	Height = HeaderHeight - 8,
-			//	Width = HeaderHeight - 8,
-			//};
-			//DockPanel.SetDock(closeButton, Dock.Right);
-			//(header.Child as DockPanel).Children.Add(closeButton);
-
-			//// close button
-			//var collapseButton = new Rectangle
-			//{
-			//	Fill = new SolidColorBrush(mainColor),
-			//	Stroke = new SolidColorBrush(Colors.Black),
-			//	VerticalAlignment = VerticalAlignment.Center,
-			//	HorizontalAlignment = HorizontalAlignment.Right,
-			//	Margin = new Thickness(0, 0, 3, 0),
-			//	Height = HeaderHeight - 8,
-			//	Width = HeaderHeight - 8,
-			//};
-			//DockPanel.SetDock(collapseButton, Dock.Right);
-			//(header.Child as DockPanel).Children.Add(collapseButton);
-
-			// drag behavior
-			//Interaction.GetBehaviors(header).Add(new DragBehavior());
-			Grid.SetRow(header, 0);
-			Grid.SetColumnSpan(header, mainPanel.ColumnDefinitions.Count);
-			mainPanel.Children.Add(header);
+			Header.Background = new LinearGradientBrush(CustomColor, Color.Multiply(CustomColor, (float)0.5), new Point(0, 1), new Point(1, 0));
+			(Header.Child as TextBlock).Text = CustomName;
 
 			#endregion
 
@@ -222,15 +149,15 @@ namespace Ujeby.UgUi.Controls
 				BorderThickness = new Thickness(1, 0, 1, 1)
 			};
 			Grid.SetRow(border, 1);
-			Grid.SetColumnSpan(border, mainPanel.ColumnDefinitions.Count);
-			Grid.SetRowSpan(border, mainPanel.RowDefinitions.Count - 1);
-			mainPanel.Children.Add(border);
+			Grid.SetColumnSpan(border, MainPanel.ColumnDefinitions.Count);
+			Grid.SetRowSpan(border, MainPanel.RowDefinitions.Count - 1);
+			MainPanel.Children.Add(border);
 
 			#endregion
 
 			var firstRow = 2;
-			var inputRows = new bool[mainPanel.RowDefinitions.Count - 3];
-			var outputRows = new bool[mainPanel.RowDefinitions.Count - 3];
+			var inputRows = new bool[MainPanel.RowDefinitions.Count - 3];
+			var outputRows = new bool[MainPanel.RowDefinitions.Count - 3];
 
 			foreach (var inputProperty in inputProperties)
 			{
@@ -275,7 +202,7 @@ namespace Ujeby.UgUi.Controls
 
 					Grid.SetRow(anchor, row);
 					Grid.SetColumn(anchor, 0);
-					mainPanel.Children.Add(anchor);
+					MainPanel.Children.Add(anchor);
 
 					#endregion
 				}
@@ -300,7 +227,7 @@ namespace Ujeby.UgUi.Controls
 				}
 				else
 					label.HorizontalAlignment = HorizontalAlignment.Left;
-				mainPanel.Children.Add(label);
+				MainPanel.Children.Add(label);
 
 				#endregion
 
@@ -336,7 +263,7 @@ namespace Ujeby.UgUi.Controls
 
 						Grid.SetRow(colorElement, row);
 						Grid.SetColumn(colorElement, 2);
-						mainPanel.Children.Add(colorElement);
+						MainPanel.Children.Add(colorElement);
 					}
 					// TODO CheckBox input
 					//else if (inputProperty.PropertyType == typeof(bool))
@@ -410,7 +337,7 @@ namespace Ujeby.UgUi.Controls
 
 						Grid.SetRow(textbox, row);
 						Grid.SetColumn(textbox, 2);
-						mainPanel.Children.Add(textbox);
+						MainPanel.Children.Add(textbox);
 					}
 
 					#endregion
@@ -438,8 +365,8 @@ namespace Ujeby.UgUi.Controls
 					anchor.MouseLeave += HilightOutputAnchorOff;
 
 					Grid.SetRow(anchor, row);
-					Grid.SetColumn(anchor, mainPanel.ColumnDefinitions.Count - 1);
-					mainPanel.Children.Add(anchor);
+					Grid.SetColumn(anchor, MainPanel.ColumnDefinitions.Count - 1);
+					MainPanel.Children.Add(anchor);
 
 					#endregion
 
@@ -494,8 +421,8 @@ namespace Ujeby.UgUi.Controls
 
 						Grid.SetRow(imageBorder, row);
 						Grid.SetColumn(imageBorder, 1);
-						Grid.SetColumnSpan(imageBorder, mainPanel.ColumnDefinitions.Count - 2);
-						mainPanel.Children.Add(imageBorder);
+						Grid.SetColumnSpan(imageBorder, MainPanel.ColumnDefinitions.Count - 2);
+						MainPanel.Children.Add(imageBorder);
 					}
 					else
 					{
@@ -530,7 +457,7 @@ namespace Ujeby.UgUi.Controls
 
 						Grid.SetRow(textbox, row);
 						Grid.SetColumn(textbox, 2);
-						mainPanel.Children.Add(textbox);
+						MainPanel.Children.Add(textbox);
 					}
 
 					#endregion
@@ -552,12 +479,12 @@ namespace Ujeby.UgUi.Controls
 				if (anchorOnly)
 				{
 					Grid.SetColumn(label, 0);
-					Grid.SetColumnSpan(label, mainPanel.ColumnDefinitions.Count - 1);
+					Grid.SetColumnSpan(label, MainPanel.ColumnDefinitions.Count - 1);
 				}
 				else
-					Grid.SetColumn(label, mainPanel.ColumnDefinitions.Count - 2);
+					Grid.SetColumn(label, MainPanel.ColumnDefinitions.Count - 2);
 
-				mainPanel.Children.Add(label);
+				MainPanel.Children.Add(label);
 
 				#endregion
 
@@ -581,8 +508,8 @@ namespace Ujeby.UgUi.Controls
 					anchor.MouseLeave += HilightOutputAnchorOff;
 
 					Grid.SetRow(anchor, row);
-					Grid.SetColumn(anchor, mainPanel.ColumnDefinitions.Count - 1);
-					mainPanel.Children.Add(anchor);
+					Grid.SetColumn(anchor, MainPanel.ColumnDefinitions.Count - 1);
+					MainPanel.Children.Add(anchor);
 
 					#endregion
 				}
@@ -672,9 +599,8 @@ namespace Ujeby.UgUi.Controls
 						stopWatch.Reset();
 						stopWatch.Start();
 
-						// TODO start flash animation
 						NodeInstance.Execute();
-						// TODO stop flash animation
+						RaiseImpulseEvent();
 
 						stopWatch.Stop();
 
@@ -716,8 +642,7 @@ namespace Ujeby.UgUi.Controls
 		{
 			if (Collapsed)
 			{
-				var header = GetElementByName(HeaderElementName) as FrameworkElement;
-				return new Point(anchorName.StartsWith(InputAnchorPrefix) ? 0 : header.ActualWidth, header.ActualHeight / 2);
+				return new Point(anchorName.StartsWith(InputAnchorPrefix) ? 0 : Header.ActualWidth, Header.ActualHeight / 2);
 			}
 			else
 			{
@@ -731,11 +656,6 @@ namespace Ujeby.UgUi.Controls
 
 				return anchorPosition;
 			}
-		}
-
-		private TextBlock GetTitleElement()
-		{
-			return GetElementByName(TitleElmentName) as TextBlock;
 		}
 
 		#region connectivity
@@ -822,28 +742,15 @@ namespace Ujeby.UgUi.Controls
 
 		public void Hilight(bool hilight)
 		{
-			var title = GetTitleElement();
-
 			if (hilight && !Hilighted)
 			{
-				Effect = new DropShadowEffect()
-				{
-					BlurRadius = BlurRadius,
-					ShadowDepth = 0,
-					Color = HilightColor.HasValue ? HilightColor.Value : CustomColor,
-				};
-
-				title.Foreground = new SolidColorBrush(Colors.White);
+				(MainPanel.Effect as DropShadowEffect).Color = Color.Multiply(CustomColor, (float)0.8);
+				Title.Foreground = new SolidColorBrush(Colors.White);
 			}
 			else if (!hilight && Hilighted)
 			{
-				Effect = new DropShadowEffect()
-				{
-					BlurRadius = BlurRadius,
-					ShadowDepth = 0
-				};
-
-				title.Foreground = new SolidColorBrush(Colors.Black);
+				(MainPanel.Effect as DropShadowEffect).Color = Colors.Black;
+				Title.Foreground = new SolidColorBrush(Colors.Black);
 			}
 
 			Hilighted = hilight;
@@ -961,24 +868,22 @@ namespace Ujeby.UgUi.Controls
 
 		#region collapse
 
-		public bool Collapsed { get { return BeforeCollapse.HasValue; } }
-		private Size? BeforeCollapse { get; set; } = null;
+		public bool Collapsed { get { return SizeBeforeCollapse.HasValue; } }
+		private Size? SizeBeforeCollapse { get; set; } = null;
 
 		public void ToggleCollapse()
 		{
-			var mainPanel = FindName(MainPanelElementName) as FrameworkElement;
-
 			if (Collapsed)
 			{
-				mainPanel.Width = BeforeCollapse.Value.Width;
-				mainPanel.Height = BeforeCollapse.Value.Height;
+				MainPanel.Width = SizeBeforeCollapse.Value.Width;
+				MainPanel.Height = SizeBeforeCollapse.Value.Height;
 
-				BeforeCollapse = null;
+				SizeBeforeCollapse = null;
 			}
 			else
 			{
-				BeforeCollapse = new Size(mainPanel.ActualWidth, mainPanel.ActualHeight);
-				mainPanel.Height = (GetElementByName(HeaderElementName) as FrameworkElement).Height;
+				SizeBeforeCollapse = new Size(MainPanel.ActualWidth, MainPanel.ActualHeight);
+				MainPanel.Height = Header.ActualHeight;
 			}
 
 			UpdateConnections(new Point(Canvas.GetLeft(this), Canvas.GetTop(this)));
@@ -1001,11 +906,7 @@ namespace Ujeby.UgUi.Controls
 
 		private DependencyObject GetElementByName(string name)
 		{
-			var mainPanel = FindName(MainPanelElementName) as DependencyObject;
-			if (mainPanel == null)
-				return null;
-
-			return LogicalTreeHelper.FindLogicalNode(mainPanel, name) as DependencyObject;
+			return LogicalTreeHelper.FindLogicalNode(MainPanel, name) as DependencyObject;
 		}
 	}
 }

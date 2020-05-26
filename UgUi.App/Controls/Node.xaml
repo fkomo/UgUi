@@ -4,16 +4,83 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Ujeby.UgUi.Controls"
-             xmlns:behaviors="clr-namespace:Ujeby.UgUi.Behaviors"
              mc:Ignorable="d">
 
 	<UserControl.Resources>
+
+		<Storyboard x:Key="Blink">
+			<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To="0.5" Duration="0:0:0.2" />
+			<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To="1.0" Duration="0:0:0.2" />
+		</Storyboard>
+		
 		<Style x:Key="{x:Type ToolTip}" TargetType="{x:Type ToolTip}">
 			<Setter Property="FontFamily" Value="Consolas"/>
 		</Style>
+		
+		<Style x:Key="MainGrid" TargetType="Grid">
+			<Style.Triggers>
+				<EventTrigger RoutedEvent="Grid.MouseEnter">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To="1.0" Duration="0:0:0.1" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+				<EventTrigger RoutedEvent="Grid.MouseLeave">
+					<EventTrigger.Actions>
+						<BeginStoryboard>
+							<Storyboard>
+								<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To=".8" Duration="0:0:0.1" />
+							</Storyboard>
+						</BeginStoryboard>
+					</EventTrigger.Actions>
+				</EventTrigger>
+			</Style.Triggers>
+		</Style>
+
 	</UserControl.Resources>
 
-	<Grid Name="MainPanel">
+	<UserControl.Triggers>
+		<EventTrigger RoutedEvent="local:Node.Impulse">
+			<EventTrigger.Actions>
+				<BeginStoryboard Storyboard="{StaticResource Blink}" />
+			</EventTrigger.Actions>
+		</EventTrigger>
+	</UserControl.Triggers>
+
+	<Grid Name="MainPanel" Style="{StaticResource MainGrid}"
+		  MouseEnter="ControlMouseEnter" MouseLeave="ControlMouseLeave"
+		  Background="#404040" Opacity=".8">
+		<Grid.Effect>
+			<DropShadowEffect ShadowDepth="0" BlurRadius="8" Color="Black" />
+		</Grid.Effect>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="8" />
+			<ColumnDefinition Width="*" MinWidth="4" />
+			<ColumnDefinition Width="*" MinWidth="64"/>
+			<ColumnDefinition Width="*" MinWidth="4"/>
+			<ColumnDefinition Width="8" />
+		</Grid.ColumnDefinitions>		
+		
+		<Grid.RowDefinitions>
+			<RowDefinition Height="24" />
+			<RowDefinition Height="8" />
+		</Grid.RowDefinitions>
+
+		<Border Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
+				BorderBrush="Black" BorderThickness="1"
+				MouseLeftButtonDown="Header_MouseLeftButtonDown">
+			<Border.Background>
+				<LinearGradientBrush EndPoint="0.0,1.0" StartPoint="1.0,0.0">
+					<GradientStop Color="#ffff0000" Offset="1"/>
+					<GradientStop Color="#ff990000" Offset="0"/>
+				</LinearGradientBrush>
+			</Border.Background>
+			<TextBlock Name="Title" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Text="Node" />
+		</Border>
 	</Grid>
 
 </UserControl>
