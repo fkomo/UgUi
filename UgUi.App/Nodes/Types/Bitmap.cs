@@ -9,7 +9,7 @@ namespace Ujeby.UgUi.Operations.Types
 	public class Bitmap : NodeOperationBase
 	{
 		[Input(Order = 0, InputAnchor = true, AnchorOnly = true)]
-		public v4[] Color { get; set; }
+		public v4[] BGRA { get; set; }
 
 		private v2 size;
 		[Input(Order = 1, InputAnchor = true, AnchorOnly = true)]
@@ -35,15 +35,15 @@ namespace Ujeby.UgUi.Operations.Types
 
 		public override void Execute()
 		{
-			if (Color != null && Size != null && Size.X * Size.Y == Color.Length)
+			if (BGRA != null && Size != null && Size.X * Size.Y == BGRA.Length)
 			{
 				var pixels = new byte[(int)Size.X * (int)Size.Y * 4];
-				for (var i = 0; i < Color.Length; i++)
+				for (var i = 0; i < BGRA.Length; i++)
 				{
-					pixels[i * 4 + 0] = (byte)(Color[i].X * 255);
-					pixels[i * 4 + 1] = (byte)(Color[i].Y * 255);
-					pixels[i * 4 + 2] = (byte)(Color[i].Z * 255);
-					pixels[i * 4 + 3] = (byte)(Color[i].W * 255);
+					pixels[i * 4 + 0] = (byte)(BGRA[i].X * 255);
+					pixels[i * 4 + 1] = (byte)(BGRA[i].Y * 255);
+					pixels[i * 4 + 2] = (byte)(BGRA[i].Z * 255);
+					pixels[i * 4 + 3] = (byte)(BGRA[i].W * 255);
 				}
 
 				Output = BitmapSource.Create((int)Size.X, (int)Size.Y, 96, 96, PixelFormats.Bgra32, null, pixels, (int)Size.X * 4);

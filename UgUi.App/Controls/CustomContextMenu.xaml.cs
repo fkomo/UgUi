@@ -43,11 +43,11 @@ namespace Ujeby.UgUi.Controls
 				{
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Workspace"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Run, "Run"),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveWorkspace, "Save Workspace" ),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.OpenWorkspace, "Open Workspace"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ImportWorkspace, "Merge"),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ToggleCollapse, "Toggle Collapse"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Clear, "Clear"),
 				}
@@ -65,8 +65,8 @@ namespace Ujeby.UgUi.Controls
 				{
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Multiple Nodes"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Remove, "Remove"),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveSelectionAs, "Save Selection As..."),
+					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveSelectionAs, "Save Selected"),
 				}
 			},
 		};

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Globalization;
 using System.Security.Cryptography;
+using Ujeby.Common.Tools.Types;
 using Ujeby.UgUi.Core;
 
 namespace Ujeby.UgUi.Operations.Generators
@@ -20,19 +20,15 @@ namespace Ujeby.UgUi.Operations.Generators
 			}
 		}
 
-		protected double value = 0.0;
-		[Output(AnchorOnly = false, ReadOnly = true, DisplayName = "")]
-		public double Value
-		{
-			get { return value; }
-			set { SetField(ref this.value, value, nameof(Value)); }
-		}
+		protected v4 value;
+		[Output(AnchorOnly = true, ReadOnly = true, DisplayName = "")]
+		public v4 Value { get; private set; }
 
 		protected Random random = new Random(new RNGCryptoServiceProvider().GetHashCode());
 
 		public override void Execute()
 		{
-			Value = random.NextDouble();
+			Value = new v4(random.NextDouble(), random.NextDouble(), random.NextDouble(), random.NextDouble());
 		}
 
 		public override string[] GetInputs()
@@ -42,7 +38,7 @@ namespace Ujeby.UgUi.Operations.Generators
 
 		public override string[] GetOutputs()
 		{
-			return new string[] { Value.ToString("F4", CultureInfo.InvariantCulture) };
+			return new string[] { Value.ToString() };
 		}
 	}
 }

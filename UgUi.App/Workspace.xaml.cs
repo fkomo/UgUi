@@ -494,6 +494,9 @@ namespace Ujeby.UgUi
 							}
 							else
 							{
+								// start moving node
+								// TODO move node only when mouse is above header
+
 								var element = Mouse.DirectlyOver as FrameworkElement;
 								while (element != null && element as Node == null)
 									element = element.Parent as FrameworkElement;
@@ -629,6 +632,8 @@ namespace Ujeby.UgUi
 
 					else if (NodeDragged != null)
 					{
+						// update moving node position
+
 						MoveControls(NodeDragged, mousePosition - NodeDragStart);
 						NodeDragStart = mousePosition;
 					}

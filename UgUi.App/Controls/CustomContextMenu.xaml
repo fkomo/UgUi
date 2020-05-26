@@ -8,14 +8,12 @@
 
 	<UserControl.Resources>
 		<DropShadowEffect x:Key="BlackGlow" BlurRadius="4" Color="#242424" ShadowDepth="0" />
-
-		<Style x:Key="MenuBorder" TargetType="Border">
+		<Style x:Key="MainBorder" TargetType="Border">
 			<Setter Property="Effect" Value="{StaticResource BlackGlow}" />
 		</Style>
-
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource MenuBorder}">
+	<Border Style="{StaticResource MainBorder}">
 		<DockPanel>
 			<Border DockPanel.Dock="Top">
 				<Label Foreground="#c0c0c0" Background="#cc484848" FontFamily="Consolas" Name="Header">Context Menu</Label>

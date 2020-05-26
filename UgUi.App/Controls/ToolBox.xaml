@@ -7,13 +7,13 @@
              Height="384" Width="192">
 
 	<UserControl.Resources>
-		<DropShadowEffect x:Key="BlackGlow" BlurRadius="4" Color="Black" ShadowDepth="0" />
-		<Style x:Key="ToolBoxBorder" TargetType="Border">
+		<DropShadowEffect x:Key="BlackGlow" BlurRadius="4" Color="#242424" ShadowDepth="0" />
+		<Style x:Key="MainBorder" TargetType="Border">
 			<Setter Property="Effect" Value="{StaticResource BlackGlow}" />
 		</Style>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource ToolBoxBorder}">
+	<Border Style="{StaticResource MainBorder}">
 		<DockPanel>
 			<Border DockPanel.Dock="Top">
 				<Label Foreground="#c0c0c0" Background="#aa484848" FontFamily="Consolas" Name="Header">Toolbox</Label>
@@ -21,7 +21,7 @@
 			<ListView Name="ElementList" 
 				  BorderThickness="0"
 				  FontFamily="Consolas" FontSize="12"
-				  Background="#aa242424"
+				  Background="#cc242424"
 				  Foreground="#c0c0c0"
 				  ScrollViewer.VerticalScrollBarVisibility="Disabled"
 				  ScrollViewer.HorizontalScrollBarVisibility="Disabled"

@@ -27,7 +27,7 @@ namespace Ujeby.UgUi.Controls
 			{
 				var groupName = element.Split('.').First();
 				if (lastGroup != null && groupName != lastGroup)
-					ElementList.Items.Add(new Separator() { Foreground = new SolidColorBrush(Colors.White) });
+					ElementList.Items.Add(new Separator());
 	
 				ElementList.Items.Add(element);
 

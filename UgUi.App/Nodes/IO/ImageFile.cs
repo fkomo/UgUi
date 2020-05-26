@@ -10,10 +10,14 @@ using Ujeby.UgUi.Operations.Abstract;
 namespace Ujeby.UgUi.Operations.IO
 {
 	[NodeInfo]
+	[IgnoredProperty(Name = nameof(Read))]
 	public class ImageFile : _File<v4[]>
 	{
 		[Output(AnchorOnly = true)]
 		public v2 Size { get; protected set; }
+
+		[Output(AnchorOnly = true)]
+		public v4[] BGRA { get; protected set; }
 
 		[Output(AnchorOnly = true)]
 		public byte[] Raw { get; protected set; }
@@ -25,7 +29,7 @@ namespace Ujeby.UgUi.Operations.IO
 				Length = 0;
 				Size = new v2();
 				Raw = new byte[] { };
-				Read = new v4[] { };
+				BGRA = new v4[] { };
 
 				if (!string.IsNullOrEmpty(Path) && File.Exists(Path))
 				{
@@ -38,9 +42,9 @@ namespace Ujeby.UgUi.Operations.IO
 					Raw = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
 					bitmapImage.CopyPixels(Raw, bitmapImage.PixelWidth * 4, 0);
 
-					Read = new v4[bitmapImage.PixelWidth * bitmapImage.PixelHeight];
-					for (var i = 0; i < Read.Length; i++)
-						Read[i] = new v4(
+					BGRA = new v4[bitmapImage.PixelWidth * bitmapImage.PixelHeight];
+					for (var i = 0; i < BGRA.Length; i++)
+						BGRA[i] = new v4(
 							(double)Raw[i * 4 + 0] / 255.0,
 							(double)Raw[i * 4 + 1] / 255.0,
 							(double)Raw[i * 4 + 2] / 255.0,

@@ -109,6 +109,9 @@ namespace Ujeby.UgUi.Common
 								ColorChannel((input as v4).Y),
 								ColorChannel((input as v4).Z),
 								ColorChannel((input as v4).W)));
+
+						if (outputType == typeof(v4[]))
+							return new v4[] { input as v4 };
 					}
 
 					else if (inputType == typeof(SolidColorBrush))
