@@ -318,7 +318,7 @@ namespace Ujeby.UgUi
 		private const int GridStep = 20;
 		private const int GridMajorStep = 100;
 		private readonly SolidColorBrush GridMinorBrush = new SolidColorBrush(Color.FromRgb(0x35, 0x35, 0x35));
-		private readonly SolidColorBrush GridMajorBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
+		private readonly SolidColorBrush GridMajorBrush = new SolidColorBrush(Color.FromRgb(0x3a, 0x3a, 0x3a));
 
 		private List<Line> VerticalLines = new List<Line>();
 		private List<Line> HorizontalLines = new List<Line>();
@@ -1160,6 +1160,18 @@ namespace Ujeby.UgUi
 			try
 			{
 				ToolBoxHeader.Background = new SolidColorBrush(Color.FromArgb(0xff, 0x50, 0x50, 0x70));
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			try
+			{
+				DrawGrid();
 			}
 			catch (Exception ex)
 			{

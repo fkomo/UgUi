@@ -6,7 +6,8 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"
 		Keyboard.KeyDown="Window_KeyDown"
-        Title="Ujeby.gUi" Width="1920" Height="1080" Background="#303030">
+        Title="Ujeby.gUi" Width="1920" Height="1080" Background="#303030"
+		SizeChanged="Window_SizeChanged">
 
     <DockPanel Name="MainWindowGrid">
 
