@@ -70,7 +70,7 @@
 			<RowDefinition Height="8" />
 		</Grid.RowDefinitions>
 
-		<Border Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
+		<Border Name="NodeHeader" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
 				BorderBrush="Black" BorderThickness="1"
 				MouseLeftButtonDown="Header_MouseLeftButtonDown">
 			<Border.Background>
@@ -79,7 +79,7 @@
 					<GradientStop Color="#ff990000" Offset="0"/>
 				</LinearGradientBrush>
 			</Border.Background>
-			<TextBlock Name="Title" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Text="Node" />
+			<TextBlock Name="NodeTitle" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Text="Node" />
 		</Border>
 	</Grid>
 

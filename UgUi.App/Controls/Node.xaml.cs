@@ -58,6 +58,9 @@ namespace Ujeby.UgUi.Controls
 		public const string OutputValuePrefix = "Output";
 		public const string DefaultOutputAnchorName = "OutputAnchorArray";
 
+		public const string HeaderElementName = "NodeHeader";
+		public const string HeaderTitleElementName = "NodeTitle";
+
 		public const int AnchorSize = 16;
 		public const int DecimalPrecision = 4;
 
@@ -136,8 +139,8 @@ namespace Ujeby.UgUi.Controls
 			var colorValues = BitConverter.GetBytes(CustomName.GetHashCode());
 			CustomColor = Color.FromArgb(0xff, colorValues[1], colorValues[2], colorValues[3]);
 
-			Header.Background = new LinearGradientBrush(CustomColor, Color.Multiply(CustomColor, (float)0.5), new Point(0, 1), new Point(1, 0));
-			(Header.Child as TextBlock).Text = CustomName;
+			NodeHeader.Background = new LinearGradientBrush(CustomColor, Color.Multiply(CustomColor, (float)0.5), new Point(0, 1), new Point(1, 0));
+			(NodeHeader.Child as TextBlock).Text = CustomName;
 
 			#endregion
 
@@ -642,7 +645,7 @@ namespace Ujeby.UgUi.Controls
 		{
 			if (Collapsed)
 			{
-				return new Point(anchorName.StartsWith(InputAnchorPrefix) ? 0 : Header.ActualWidth, Header.ActualHeight / 2);
+				return new Point(anchorName.StartsWith(InputAnchorPrefix) ? 0 : NodeHeader.ActualWidth, NodeHeader.ActualHeight / 2);
 			}
 			else
 			{
@@ -745,12 +748,12 @@ namespace Ujeby.UgUi.Controls
 			if (hilight && !Hilighted)
 			{
 				(MainPanel.Effect as DropShadowEffect).Color = Color.Multiply(CustomColor, (float)0.8);
-				Title.Foreground = new SolidColorBrush(Colors.White);
+				NodeTitle.Foreground = new SolidColorBrush(Colors.White);
 			}
 			else if (!hilight && Hilighted)
 			{
 				(MainPanel.Effect as DropShadowEffect).Color = Colors.Black;
-				Title.Foreground = new SolidColorBrush(Colors.Black);
+				NodeTitle.Foreground = new SolidColorBrush(Colors.Black);
 			}
 
 			Hilighted = hilight;
@@ -788,6 +791,8 @@ namespace Ujeby.UgUi.Controls
 
 				if (connection != null)
 					connection.Hilight(Colors.White);
+
+				Cursor = Cursors.Hand;
 			}
 		}
 
@@ -815,6 +820,8 @@ namespace Ujeby.UgUi.Controls
 			var connection = ConnectionsFrom.SingleOrDefault(c => c.RightAnchorName == name);
 			if (connection != null)
 				connection.Hilight(inputColor);
+
+			Cursor = Cursors.Arrow;
 		}
 
 		protected void HilightOutputAnchorOn(object sender, MouseEventArgs e)
@@ -827,6 +834,8 @@ namespace Ujeby.UgUi.Controls
 			var label = GetElementByName((sender as Rectangle).Name.Replace(OutputAnchorPrefix, LabelPrefix)) as Label;
 			if (label != null)
 				label.Foreground = new SolidColorBrush(Colors.White);
+
+			Cursor = Cursors.Hand;
 		}
 
 		protected void HilightOutputAnchorOff(object sender, MouseEventArgs e)
@@ -845,6 +854,8 @@ namespace Ujeby.UgUi.Controls
 			var label = GetElementByName((anchor as Rectangle).Name.Replace(OutputAnchorPrefix, LabelPrefix)) as Label;
 			if (label != null)
 				label.Foreground = new SolidColorBrush(TextForeground);
+
+			Cursor = Cursors.Arrow;
 		}
 
 		#endregion
@@ -883,7 +894,7 @@ namespace Ujeby.UgUi.Controls
 			else
 			{
 				SizeBeforeCollapse = new Size(MainPanel.ActualWidth, MainPanel.ActualHeight);
-				MainPanel.Height = Header.ActualHeight;
+				MainPanel.Height = NodeHeader.ActualHeight;
 			}
 
 			UpdateConnections(new Point(Canvas.GetLeft(this), Canvas.GetTop(this)));

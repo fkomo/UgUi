@@ -62,17 +62,7 @@ namespace Ujeby.UgUi
 		{
 			ToolBoxStorage.Clear();
 
-			// TODO get all types in namespaces under Ujeby.UgUi.Operations.*
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Types");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Strings");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Math");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Generators");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.IO");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Encoding");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Crypto");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Network");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Logical");
-			AddNodesToToolBox("Ujeby.UgUi.Operations.Arrays");
+			AddNodesToToolBox("Ujeby.UgUi.Operations");
 		}
 
 		public Workspace()
@@ -91,13 +81,13 @@ namespace Ujeby.UgUi
 		}
 
 		/// <summary>
-		/// add all types from sourceNamespace with FunctionInfo attribute to FunctionsContainer
+		/// add all types from sourceNamespace with FunctionInfo attribute to ToolBoxStorage
 		/// </summary>
 		/// <param name="sourceNamespace"></param>
 		private static void AddNodesToToolBox(string sourceNamespace)
 		{
 			var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
-				.Where(t => string.Equals(t.Namespace, sourceNamespace, StringComparison.Ordinal) && t.CustomAttributes.Any(a => a.AttributeType == typeof(NodeInfoAttribute)))
+				.Where(t => t.Namespace.StartsWith(sourceNamespace) && t.CustomAttributes.Any(a => a.AttributeType == typeof(NodeInfoAttribute)))
 				.Where(t => !t.CustomAttributes.Single(a => a.AttributeType == typeof(NodeInfoAttribute)).NamedArguments.Any(na => na.MemberName == nameof(NodeInfoAttribute.Abstract)))
 				.ToArray();
 
@@ -299,6 +289,11 @@ namespace Ujeby.UgUi
 			{
 				InitializeControlsTreeView();
 
+				// collapse messages box
+				ToggleMessagesBoxCollapse();
+
+				DrawGrid();
+
 				// create and hide toolbox
 				ToolBox = new ToolBox(AddControl);
 				ToolBox.Visibility = Visibility.Collapsed;
@@ -310,13 +305,79 @@ namespace Ujeby.UgUi
 				WorkspaceContextMenu.Visibility = Visibility.Collapsed;
 				WorkspaceCanvas.Children.Add(WorkspaceContextMenu);
 				Canvas.SetZIndex(WorkspaceContextMenu, int.MaxValue);
-
-				// collapse messages box
-				ToggleMessagesBoxCollapse();
 			}
 			catch (Exception ex)
 			{
 				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private Point GridOffset = new Point(0, 0);
+		private Point? WorkspaceDragStart = null;
+
+		private const int GridStep = 20;
+		private const int GridMajorStep = 100;
+		private readonly SolidColorBrush GridMinorBrush = new SolidColorBrush(Color.FromRgb(0x35, 0x35, 0x35));
+		private readonly SolidColorBrush GridMajorBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
+
+		private List<Line> VerticalLines = new List<Line>();
+		private List<Line> HorizontalLines = new List<Line>();
+
+		/// <summary>
+		/// draw background workspace grid (minor / major lines)
+		/// </summary>
+		private void DrawGrid()
+		{
+			// remove old lines
+			foreach (var line in HorizontalLines)
+				WorkspaceCanvas.Children.Remove(line);
+			foreach (var line in VerticalLines)
+				WorkspaceCanvas.Children.Remove(line);
+			VerticalLines.Clear();
+			HorizontalLines.Clear();
+
+			for (var x = 0; x < ActualWidth; x += GridStep)
+			{
+				var xFinal = x + (int)GridOffset.X % GridStep;
+				var major = (xFinal - (int)GridOffset.X) % GridMajorStep == 0;
+
+				var line = new Line
+				{
+					Stroke = major ? GridMajorBrush : GridMinorBrush,
+					StrokeThickness = 1,
+					X1 = xFinal,
+					Y1 = 0,
+					X2 = xFinal,
+					Y2 = ActualHeight,
+					SnapsToDevicePixels = true,
+				};
+
+				line.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
+				Canvas.SetZIndex(line, major ? int.MinValue + 1 : int.MinValue);
+				WorkspaceCanvas.Children.Add(line);
+				VerticalLines.Add(line);
+			}
+
+			for (var y = 0; y < ActualHeight; y += GridStep)
+			{
+				var yFinal = y + (int)GridOffset.Y % GridStep;
+				var major = (yFinal - (int)GridOffset.Y) % GridMajorStep == 0;
+
+				var line = new Line
+				{
+					Stroke = major ? GridMajorBrush : GridMinorBrush,
+					StrokeThickness = 1,
+					X1 = 0,
+					Y1 = yFinal,
+					X2 = ActualWidth,
+					Y2 = yFinal,
+					SnapsToDevicePixels = true,
+				};
+
+				line.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
+				Canvas.SetZIndex(line, major ? int.MinValue + 1 : int.MinValue);
+				WorkspaceCanvas.Children.Add(line);
+				HorizontalLines.Add(line);
 			}
 		}
 
@@ -378,7 +439,7 @@ namespace Ujeby.UgUi
 					}
 
 					RemoveAllControls();
-					Open(Mouse.GetPosition(WorkspaceCanvas), AddControl, AddConnection);
+					Open(new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
 				}
 			}
 			catch (Exception ex)
@@ -392,8 +453,6 @@ namespace Ujeby.UgUi
 			try
 			{
 				HideCustomWindows();
-
-				// TODO move whole canvas if middle mouse button is pressed
 
 				var mousePosition = e.GetPosition(WorkspaceCanvas);
 
@@ -476,6 +535,8 @@ namespace Ujeby.UgUi
 
 								NewConnection.Update(new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y), mousePosition);
 								NewConnection.AddToUICollection(WorkspaceCanvas.Children);
+
+								Cursor = Cursors.Hand;
 							}
 							else if (anchor.Name != null && anchor.Name.StartsWith(Node.InputAnchorPrefix) && Connections.Any(c => c.RightAnchorName == anchor.Name))
 							{
@@ -490,22 +551,38 @@ namespace Ujeby.UgUi
 
 									NewConnection.Right = null;
 									NewConnection.RightAnchorName = null;
+
+									Cursor = Cursors.Hand;
 								}
 							}
 							else
 							{
-								// start moving node
-								// TODO move node only when mouse is above header
-
 								var element = Mouse.DirectlyOver as FrameworkElement;
-								while (element != null && element as Node == null)
-									element = element.Parent as FrameworkElement;
-								var node = element as Node;
+								if (element.Name == Node.HeaderElementName || element.Name == Node.HeaderTitleElementName)
+								{
+									// start moving node
+									while (element != null && element as Node == null)
+										element = element.Parent as FrameworkElement;
+									var node = element as Node;
 
-								NodeDragStart = mousePosition;
-								NodeDragged = node;
+									NodeDragStart = mousePosition;
+									NodeDragged = node;
+
+									Cursor = Cursors.SizeAll;
+								}
 							}
 						}
+					}
+				}
+				else if (e.MiddleButton == MouseButtonState.Pressed)
+				{
+					if (Mouse.DirectlyOver == WorkspaceCanvas)
+					{
+						// move whole canvas
+						WorkspaceDragStart = mousePosition;
+						Cursor = Cursors.SizeAll;
+
+						// TODO show small workspace map in corner
 					}
 				}
 			}
@@ -559,21 +636,21 @@ namespace Ujeby.UgUi
 						}
 
 						NewConnection = null;
+						Cursor = Cursors.Arrow;
 					}
 					else if (NodeDragged != null)
 					{
 						// stop moving node
 						NodeDragged = null;
+						Cursor = Cursors.Arrow;
 					}
-					else
-					{
-						// connection clicked?
-						var connection = Connections.SingleOrDefault(c => c.HasUIElement(Mouse.DirectlyOver as UIElement));
-						if (connection != null)
-						{
-							Log.WriteLine(connection.ToString());
-						}
-					}
+				}
+				
+				if (e.MiddleButton == MouseButtonState.Released)
+				{
+					// stop moving whole canvas
+					WorkspaceDragStart = null;
+					Cursor = Cursors.Arrow;
 				}
 			}
 			catch (Exception ex)
@@ -632,10 +709,25 @@ namespace Ujeby.UgUi
 
 					else if (NodeDragged != null)
 					{
-						// update moving node position
+						// move node / selected nodes
 
 						MoveControls(NodeDragged, mousePosition - NodeDragStart);
 						NodeDragStart = mousePosition;
+					}
+				}
+				else if (e.MiddleButton == MouseButtonState.Pressed)
+				{
+					if (WorkspaceDragStart.HasValue)
+					{
+						// move whole canvas
+
+						var offset = mousePosition - WorkspaceDragStart.Value;
+
+						GridOffset.X += offset.X;
+						GridOffset.Y += offset.Y;
+
+						MoveWorkspace(offset);
+						WorkspaceDragStart = mousePosition;
 					}
 				}
 			}
@@ -643,6 +735,14 @@ namespace Ujeby.UgUi
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private void MoveWorkspace(Vector offset)
+		{
+			DrawGrid();
+
+			foreach (var node in Nodes)
+				MoveControl(node, offset);
 		}
 
 		private Node GetElementControl(FrameworkElement element)
@@ -664,19 +764,11 @@ namespace Ujeby.UgUi
 			return null;
 		}
 
-		private double CurrentScale = 1;
-
 		private void Workspace_MouseWheel(object sender, MouseWheelEventArgs e)
 		{
 			try
 			{
-				if (e.Delta > 0)
-					CurrentScale += .05;
-				else
-					CurrentScale -= .05;
 
-				// TODO zooming
-				//RenderTransform = new ScaleTransform(CurrentScale, CurrentScale, e.GetPosition(Workspace).X, e.GetPosition(Workspace).Y);
 			}
 			catch (Exception ex)
 			{
@@ -854,30 +946,6 @@ namespace Ujeby.UgUi
 
 					DragDrop.DoDragDrop(item, data, DragDropEffects.Move);
 				}
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void Workspace_DragEnter(object sender, DragEventArgs e)
-		{
-			try
-			{
-				// TODO show control icon as drag&drop effect
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void Workspace_DragOver(object sender, DragEventArgs e)
-		{
-			try
-			{
-
 			}
 			catch (Exception ex)
 			{

@@ -3,16 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Ujeby.UgUi"
-        xmlns:control = "clr-namespace:Ujeby.UgUi.Controls" 
         mc:Ignorable="d"
         Loaded="Window_Loaded"
 		Keyboard.KeyDown="Window_KeyDown"
-        Title="Ujeby-gUi" Width="1920" Height="1080" Background="#303030">
+        Title="Ujeby.gUi" Width="1920" Height="1080" Background="#303030">
 
-    <Grid Name="MainWindowGrid">
+    <DockPanel Name="MainWindowGrid">
 
-        <Grid.ColumnDefinitions>
+		<!--<Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
@@ -21,21 +19,75 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="30" />
-        </Grid.RowDefinitions>
+        </Grid.RowDefinitions>-->
 
-        <Canvas Grid.Row="0" Grid.Column="0"
+		<!-- StatusBar -->
+		<Border DockPanel.Dock="Bottom" Height="32"
+			BorderThickness="2,1,2,2" BorderBrush="#404040">
+			<StackPanel Background="#242424">
+				<Border>
+					<Label Margin="2,0,0,0" Foreground="#c0c0c0"
+						Name="StatusBarInformation" FontFamily="Consolas"></Label>
+				</Border>
+			</StackPanel>
+		</Border>
+
+		<!-- ToolBox -->
+		<Border DockPanel.Dock="Right" Width="192"
+			BorderThickness="2,2,2,1" BorderBrush="#404040"
+			Name="ToolBoxBorder">
+            <StackPanel Background="#242424">
+                <Border Background="#505070"
+					Mouse.MouseEnter="ToolBoxHeader_MouseEnter"
+					Mouse.MouseLeave="ToolBoxHeader_MouseLeave"
+					Name="ToolBoxHeader">
+					<Label Foreground="#c0c0c0" FontFamily="Consolas" >ToolBox</Label>
+                </Border>
+				<TreeView Margin="0,4,4,4" Background="#252525" BorderThickness="0"
+					Name="ControlsTreeView" FontFamily="Consolas">
+				</TreeView>
+            </StackPanel>
+        </Border>
+
+		<!-- Log messages -->
+		<Border DockPanel.Dock="Bottom" Height="256"
+			BorderThickness="2,2,0,1" BorderBrush="#404040"
+			Name="MessagesBoxBorder">
+			<DockPanel Background="#202020">
+				<Border DockPanel.Dock="Top" Background="#507050"
+					MouseLeftButtonDown="MessagesBoxHeader_MouseLeftButtonDown"
+					Mouse.MouseEnter="MessagesBoxHeader_MouseEnter"
+					Mouse.MouseLeave="MessagesBoxHeader_MouseLeave"
+					Mouse.MouseUp="MessagesBoxHeader_MouseUp"
+					Mouse.MouseMove="MessagesBoxHeader_MouseMove"
+					Name="MessagesBoxHeader">
+					<Label Foreground="#c0c0c0" FontFamily="Consolas">Messages</Label>
+				</Border>
+				<ScrollViewer DockPanel.Dock="Bottom"
+					HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Auto">
+					<TextBox Margin="4,4,4,4" BorderThickness="0" TextWrapping="Wrap"
+						Background="#242424" Foreground="#c0c0c0"
+						IsReadOnly="True" Text=""
+						Name="MessagesBox"
+						FontFamily="Consolas" />
+				</ScrollViewer>
+			</DockPanel>
+		</Border>
+
+		<Canvas
 			MouseUp="Workspace_MouseUp"
 			MouseDown="Workspace_MouseDown"
 			MouseMove="Workspace_MouseMove"
 			MouseWheel="Workspace_MouseWheel"
 			MouseLeave="Workspace_MouseLeave"
 			AllowDrop="True"
-			DragEnter="Workspace_DragEnter"
-			DragOver="Workspace_DragOver"
 			Drop="Workspace_Drop"
-			Name="WorkspaceCanvas">
-            <Canvas.Background>
-                <DrawingBrush TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
+			Name="WorkspaceCanvas"
+			Background="#303030"
+			ClipToBounds="True">
+			<!--<Canvas.Background>
+                <DrawingBrush TileMode="Tile" Viewport="1,1,10,10" ViewportUnits="Absolute">
                     <DrawingBrush.Drawing>
                         <GeometryDrawing>
                             <GeometryDrawing.Geometry>
@@ -47,69 +99,12 @@
                         </GeometryDrawing>
                     </DrawingBrush.Drawing>
                 </DrawingBrush>
-            </Canvas.Background>
-            <Canvas.RenderTransform>
+            </Canvas.Background>-->
+			<!--<Canvas.RenderTransform>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </Canvas.RenderTransform>
-            <!--<Canvas.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Save" Click="Save_Click" />
-                    <MenuItem Header="Load" Click="Load_Click" />
-                    <Separator></Separator>
-                </ContextMenu>
-            </Canvas.ContextMenu>-->
-        </Canvas>
-		
-        <Border Grid.Row="1" Grid.Column="0" Height="256"
-			BorderThickness="2,2,0,1" BorderBrush="#404040"
-			Name="MessagesBoxBorder">
-            <DockPanel Background="#202020">
-                <Border DockPanel.Dock="Top" Background="#507050"
-					MouseLeftButtonDown="MessagesBoxHeader_MouseLeftButtonDown"
-					Mouse.MouseEnter="MessagesBoxHeader_MouseEnter"
-					Mouse.MouseLeave="MessagesBoxHeader_MouseLeave"
-					Mouse.MouseUp="MessagesBoxHeader_MouseUp"
-					Mouse.MouseMove="MessagesBoxHeader_MouseMove"
-					Name="MessagesBoxHeader">
-					<Label Foreground="#c0c0c0" FontFamily="Consolas">Messages</Label>
-                </Border>
-                <ScrollViewer DockPanel.Dock="Bottom"
-					HorizontalScrollBarVisibility="Auto"
-					VerticalScrollBarVisibility="Auto">
-                    <TextBox Margin="4,4,4,4" BorderThickness="0" TextWrapping="Wrap"
-						Background="#242424" Foreground="#c0c0c0"
-						IsReadOnly="True" Text=""
-						Name="MessagesBox"
-						FontFamily="Consolas" />
-                </ScrollViewer>
-            </DockPanel>
-        </Border>
+            </Canvas.RenderTransform>-->
+		</Canvas>
 
-        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Width="192"
-			BorderThickness="2,2,2,1" BorderBrush="#404040"
-			Name="ToolBoxBorder">
-            <StackPanel Background="#242424">
-                <Border Background="#505070"
-					Mouse.MouseEnter="ToolBoxHeader_MouseEnter"
-					Mouse.MouseLeave="ToolBoxHeader_MouseLeave"
-					Name="ToolBoxHeader">
-					<Label Foreground="#c0c0c0" FontFamily="Consolas" >ToolBox</Label>
-                </Border>
-				<TreeView Margin="0,4,4,4" Background="#252525" BorderThickness="0"
-					Name="ControlsTreeView" FontFamily="Consolas" >
-				</TreeView>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="2" Grid.ColumnSpan="2" 
-			BorderThickness="2,1,2,2" BorderBrush="#404040">
-            <StackPanel Background="#242424">
-                <Border>
-                    <Label Margin="2,0,0,0" Foreground="#c0c0c0"
-						Name="StatusBarInformation" FontFamily="Consolas"></Label>
-                </Border>
-            </StackPanel>
-        </Border>
-    </Grid>
+	</DockPanel>
 
 </Window>
