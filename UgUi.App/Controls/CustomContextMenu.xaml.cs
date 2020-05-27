@@ -11,17 +11,18 @@ namespace Ujeby.UgUi.Controls
 		HeaderName = 0,
 
 		Run,
-		SaveWorkspace,
-		OpenWorkspace,
-		ImportWorkspace,
+		Save,
+		SaveAs,
+		Open,
+		Import,
 		ToggleCollapse,
-		Clear,
+		Reset,
 
 		Separator,
 
 		Rename,
 		Remove,
-		SaveSelectionAs,
+		Export,
 	}
 
 	public enum ContextId
@@ -44,12 +45,13 @@ namespace Ujeby.UgUi.Controls
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Workspace"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Run, "Run"),
 					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveWorkspace, "Save Workspace" ),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.OpenWorkspace, "Open Workspace"),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ImportWorkspace, "Merge"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Open, "Open Workspace"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Import, "Import Workspace"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Save, "Save Workspace" ),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveAs, "Save Workspace As..." ),
 					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.ToggleCollapse, "Toggle Collapse"),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Clear, "Clear"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Reset, "Reset"),
 				}
 			},
 			{
@@ -66,7 +68,7 @@ namespace Ujeby.UgUi.Controls
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Multiple Nodes"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Remove, "Remove"),
 					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
-					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveSelectionAs, "Save Selected"),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Export, "Export"),
 				}
 			},
 		};

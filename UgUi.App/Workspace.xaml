@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
+		Closing="Window_Closing"
 		Keyboard.KeyDown="Window_KeyDown"
         Title="Ujeby.gUi" Width="1920" Height="1080" Background="#303030"
 		SizeChanged="Window_SizeChanged">

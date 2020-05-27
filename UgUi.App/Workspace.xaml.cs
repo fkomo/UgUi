@@ -58,15 +58,11 @@ namespace Ujeby.UgUi
 		public static ToolBox ToolBox { get; set; }
 		public static CustomContextMenu WorkspaceContextMenu { get; set; }
 
-		static Workspace()
-		{
-			ToolBoxStorage.Clear();
-
-			AddNodesToToolBox("Ujeby.UgUi.Operations");
-		}
-
 		public Workspace()
 		{
+			ToolBoxStorage.Clear();
+			AddNodesToToolBox("Ujeby.UgUi.Operations.");
+
 			InitializeComponent();
 
 			Log.LogFileName = "ujeby-gui.log";
@@ -123,8 +119,10 @@ namespace Ujeby.UgUi
 			return true;
 		}
 
-		internal static void Save(FrameworkElement[] nodesToSave)
+		internal static bool Save(string currentWorkspaceFile, FrameworkElement[] nodesToSave, out string newFile)
 		{
+			newFile = null;
+
 			var nodes = new List<UgUiFile.Node>();
 			foreach (Node toSave in nodesToSave)
 				nodes.Add(new UgUiFile.Node
@@ -152,29 +150,42 @@ namespace Ujeby.UgUi
 
 			try
 			{
-				var dlg = new SaveFileDialog()
+				if (string.IsNullOrEmpty(currentWorkspaceFile))
 				{
-					AddExtension = true,
-					DefaultExt = UgUiFile.Extension,
-					Filter = $"UgUi workspaces ({ UgUiFile.Extension })|*{ UgUiFile.Extension }",
-				};
-				if (dlg.ShowDialog() == true)
+					var dlg = new SaveFileDialog()
+					{
+						AddExtension = true,
+						DefaultExt = UgUiFile.Extension,
+						Filter = $"UgUi workspaces ({ UgUiFile.Extension })|*{ UgUiFile.Extension }",
+					};
+
+					if (dlg.ShowDialog() == true)
+						currentWorkspaceFile = dlg.FileName;
+				}
+
+				if (!string.IsNullOrEmpty(currentWorkspaceFile))
 				{
-					File.WriteAllText(dlg.FileName, Utils.Serialize(new UgUiFile
+					File.WriteAllText(currentWorkspaceFile, Utils.Serialize(new UgUiFile
 					{
 						Connections = connections.ToArray(),
 						Nodes = nodes.ToArray(),
 					}), System.Text.Encoding.UTF8);
-					Log.WriteLine($"Workspace saved as '{ dlg.FileName }'");
+					Log.WriteLine($"Workspace '{ currentWorkspaceFile }' saved successfully");
+
+					newFile = currentWorkspaceFile;
+
+					return true;
 				}
 			}
 			catch (Exception ex)
 			{
 				Log.WriteLine(ex.ToString());
 			}
+
+			return false;
 		}
 
-		internal static void Open(Point position, Func<string, Point, Node> addControl, Action<Connection> addConnection)
+		internal static string Open(string currentWorkspaceFile, Point position, Func<string, Point, Node> addControl, Action<Connection> addConnection)
 		{
 			try
 			{
@@ -185,11 +196,16 @@ namespace Ujeby.UgUi
 				};
 				if (dlg.ShowDialog() == true)
 				{
+					var file = Utils.Deserialize<UgUiFile>(File.ReadAllText(dlg.FileName, System.Text.Encoding.UTF8));
+					if (file == null || file.Nodes == null || file.Nodes.Length < 1)
+					{
+						Log.WriteLine($"Workspace '{ dlg.FileName }' is empty");
+						return currentWorkspaceFile;
+					}
+
 					// deselect all current nodes, only newly added would be selected
 					foreach (var node in Nodes)
 						node.Select(false);
-
-					var file = Utils.Deserialize<UgUiFile>(File.ReadAllText(dlg.FileName, System.Text.Encoding.UTF8));
 
 					// fix identifiers - if id is found in workspace generate new one
 					foreach (var node in file.Nodes)
@@ -228,8 +244,6 @@ namespace Ujeby.UgUi
 						if (!string.IsNullOrEmpty(node.Data))
 							(newNode.NodeInstance as ISerializableNode).DeserializeData(node.Data);
 
-						//Log.WriteLine($"{ node.TypeName }@[{ node.Position }]");
-
 						// select new node
 						newNode.Select(true);
 					}
@@ -253,20 +267,22 @@ namespace Ujeby.UgUi
 							var newConnection = new Connection(leftControl, rightControl, connection.LeftAnchorName, connection.RightAnchorName);
 							newConnection.Update(fromPosition, toPosition);
 
-							//Log.WriteLine($"{ newConnection }");
 							addConnection(newConnection);
 
 							newConnection.Right.ResetInputAnchorColor(newConnection.RightAnchorName);
 						}
 					}
 
-					Log.WriteLine($"Workspace '{ dlg.FileName }' imported: { file.Nodes.Length } nodes, { file.Connections.Length } connections");
+					Log.WriteLine($"Workspace '{ dlg.FileName }' loaded [{ file.Nodes.Length } nodes, { file.Connections.Length } connections]");
+					return dlg.FileName;
 				}
 			}
 			catch (Exception ex)
 			{
 				Log.WriteLine(ex.ToString());
 			}
+
+			return currentWorkspaceFile;
 		}
 
 		private static string UserDataFolder
@@ -295,16 +311,22 @@ namespace Ujeby.UgUi
 				DrawGrid();
 
 				// create and hide toolbox
-				ToolBox = new ToolBox(AddControl);
-				ToolBox.Visibility = Visibility.Collapsed;
+				ToolBox = new ToolBox(AddControl)
+				{
+					Visibility = Visibility.Collapsed
+				};
 				WorkspaceCanvas.Children.Add(ToolBox);
 				Canvas.SetZIndex(ToolBox, int.MaxValue);
 
 				// create and context menu
-				WorkspaceContextMenu = new CustomContextMenu(ContextMenuItemClicked);
-				WorkspaceContextMenu.Visibility = Visibility.Collapsed;
+				WorkspaceContextMenu = new CustomContextMenu(ContextMenuItemClicked)
+				{
+					Visibility = Visibility.Collapsed
+				};
 				WorkspaceCanvas.Children.Add(WorkspaceContextMenu);
 				Canvas.SetZIndex(WorkspaceContextMenu, int.MaxValue);
+
+				SetTitle();
 			}
 			catch (Exception ex)
 			{
@@ -400,8 +422,9 @@ namespace Ujeby.UgUi
 			try
 			{
 				if (menuItemId == ContextMenuItemId.Run)
+				{
 					NewSimulation();
-
+				}
 				else if (menuItemId == ContextMenuItemId.Remove)
 				{
 					foreach (var control in contextData as FrameworkElement[])
@@ -409,43 +432,89 @@ namespace Ujeby.UgUi
 
 					NewSimulation();
 				}
-				else if (menuItemId == ContextMenuItemId.Clear)
-					RemoveAllControls();
+				else if (menuItemId == ContextMenuItemId.Reset)
+				{
+					if (SaveCurrent())
+					{
+						RemoveAllControls();
+						SetTitle();
 
+						GridOffset = new Point(0, 0);
+						DrawGrid();
+					}
+				}
 				else if (menuItemId == ContextMenuItemId.ToggleCollapse)
+				{
 					foreach (var node in Nodes)
 						node.ToggleCollapse();
-
-				else if (menuItemId == ContextMenuItemId.SaveWorkspace)
-					Save(Nodes.Select(c => c as FrameworkElement).ToArray());
-
-				else if (menuItemId == ContextMenuItemId.SaveSelectionAs)
-					Save(contextData as FrameworkElement[]);
-
-				else if (menuItemId == ContextMenuItemId.ImportWorkspace)
-					Open(new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
-
-				else if (menuItemId == ContextMenuItemId.OpenWorkspace)
+				}
+				else if (menuItemId == ContextMenuItemId.Save)
 				{
-					if (Nodes.Count > 0)
+					if (Save(WorkspaceFile, Nodes.Select(c => c as FrameworkElement).ToArray(), out string newFile))
+						SetTitle(newFile);
+				}
+				else if (menuItemId == ContextMenuItemId.SaveAs)
+				{
+					if (Save(null, Nodes.Select(c => c as FrameworkElement).ToArray(), out string newFile))
+						SetTitle(newFile);
+				}
+				else if (menuItemId == ContextMenuItemId.Export)
+				{
+					Save(null, contextData as FrameworkElement[], out string newFile);
+				}
+				else if (menuItemId == ContextMenuItemId.Import)
+				{
+					Open(null, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
+				}
+				else if (menuItemId == ContextMenuItemId.Open)
+				{
+					if (SaveCurrent())
 					{
-						var result = MessageBox.Show("Do you want to save changes in current workspace ?", "UgUi", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+						RemoveAllControls();
+						SetTitle();
 
-						if (result == MessageBoxResult.Yes)
-							Save(Nodes.Select(c => c as FrameworkElement).ToArray());
-
-						else if (result == MessageBoxResult.Cancel)
-							return;
+						var fileName = Open(WorkspaceFile, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
+						SetTitle(fileName);
 					}
+				}
+				else if (menuItemId == ContextMenuItemId.Rename)
+				{
 
-					RemoveAllControls();
-					Open(new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
 				}
 			}
 			catch (Exception ex)
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private static bool SaveCurrent()
+		{
+			if (Nodes.Count < 1)
+				return true;
+
+			var result = MessageBox.Show($"Do you want to save changes { (WorkspaceFile != null ? $"to '{ WorkspaceFile }' " : "") }?", "Ujeby.gUi", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+			if (result == MessageBoxResult.Yes)
+			{
+				if (!Save(WorkspaceFile, Nodes.Select(c => c as FrameworkElement).ToArray(), out string newFile))
+					return false;
+			}
+			else if (result == MessageBoxResult.Cancel)
+				return false;
+
+			return true;
+		}
+
+		private static string WorkspaceFile { get; set; }
+
+		private void SetTitle(string workspaceFile = null)
+		{
+			WorkspaceFile = workspaceFile;
+
+			this.Title = "Ujeby.gUi";
+			if (!string.IsNullOrEmpty(workspaceFile))
+				this.Title += $" [{ new FileInfo(workspaceFile).Name }]";
 		}
 
 		private void Workspace_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1177,6 +1246,11 @@ namespace Ujeby.UgUi
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private void Window_Closing(object sender, CancelEventArgs e)
+		{
+			// TODO save workspace before closing ?
 		}
 	}
 }
