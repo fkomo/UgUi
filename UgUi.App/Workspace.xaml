@@ -12,17 +12,6 @@
 
     <DockPanel Name="MainWindowGrid">
 
-		<!--<Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="30" />
-        </Grid.RowDefinitions>-->
-
 		<!-- StatusBar -->
 		<Border DockPanel.Dock="Bottom" Height="32"
 			BorderThickness="2,1,2,2" BorderBrush="#404040">

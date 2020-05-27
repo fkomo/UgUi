@@ -443,9 +443,9 @@ namespace Ujeby.UgUi
 						DrawGrid();
 					}
 				}
-				else if (menuItemId == ContextMenuItemId.ToggleCollapse)
+				else if (menuItemId == ContextMenuItemId.Collapse)
 				{
-					foreach (var node in Nodes)
+					foreach (var node in (contextData as FrameworkElement[]).Select(n => n as Node))
 						node.ToggleCollapse();
 				}
 				else if (menuItemId == ContextMenuItemId.Save)
