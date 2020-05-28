@@ -16,6 +16,7 @@ using System.Reflection;
 using Microsoft.Win32;
 using System.IO;
 using System.Threading;
+using Ujeby.UgUi.Nodes;
 
 namespace Ujeby.UgUi
 {
@@ -100,7 +101,7 @@ namespace Ujeby.UgUi
 		public Workspace()
 		{
 			ToolBoxStorage.Clear();
-			AddNodesToToolBox("Ujeby.UgUi.Operations.");
+			AddNodesToToolBox("Ujeby.UgUi.Nodes.");
 
 			InitializeComponent();
 
@@ -121,7 +122,7 @@ namespace Ujeby.UgUi
 		/// <param name="sourceNamespace"></param>
 		private static void AddNodesToToolBox(string sourceNamespace)
 		{
-			var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
+			var nodeTypes = Assembly.LoadFrom("Ujeby.UgUi.Nodes.dll").GetTypes()
 				.Where(t => t.Namespace.StartsWith(sourceNamespace) && t.CustomAttributes.Any(a => a.AttributeType == typeof(NodeInfoAttribute)))
 				.Where(t => !t.CustomAttributes.Single(a => a.AttributeType == typeof(NodeInfoAttribute)).NamedArguments.Any(na => na.MemberName == nameof(NodeInfoAttribute.Abstract)))
 				.ToArray();
@@ -926,7 +927,7 @@ namespace Ujeby.UgUi
 					for (var i = 0; i < WorkspaceCanvas.Children.Count; i++)
 					{
 						(WorkspaceCanvas.Children[i] as Node)?.Execute(transactionId);
-						(sender as BackgroundWorker).ReportProgress(Convert.ToInt32(((double)(i + 1) / WorkspaceCanvas.Children.Count) * 100));
+						(sender as BackgroundWorker).ReportProgress(System.Convert.ToInt32(((double)(i + 1) / WorkspaceCanvas.Children.Count) * 100));
 					}
 				});
 
@@ -989,7 +990,7 @@ namespace Ujeby.UgUi
 			if (type == null)
 				return null;
 
-			var control = new Node(Activator.CreateInstance(type) as NodeOperationBase);
+			var control = new Node(Activator.CreateInstance(type) as NodeBase);
 			if (control == null)
 				return null;
 

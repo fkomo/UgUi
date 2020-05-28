@@ -101,8 +101,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Behaviors\DragBehavior.cs" />
-    <Compile Include="Common\Convert.cs" />
-    <Compile Include="Common\FriendlyException.cs" />
     <Compile Include="Core\UgUiFile.cs" />
     <Compile Include="Controls\CustomContextMenu.xaml.cs">
       <DependentUpon>CustomContextMenu.xaml</DependentUpon>
@@ -114,63 +112,7 @@
       <DependentUpon>ToolBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Behaviors\ResizeBehavior.cs" />
-    <Compile Include="Nodes\Abstract\File.cs" />
-    <Compile Include="Nodes\Abstract\Check.cs" />
-    <Compile Include="Nodes\Abstract\UnaryOperator.cs" />
-    <Compile Include="Core\Attributes.cs" />
-    <Compile Include="Nodes\Arrays\Count.cs" />
-    <Compile Include="Nodes\Arrays\AtIndex.cs" />
-    <Compile Include="Nodes\Crypto\SHA512.cs" />
-    <Compile Include="Nodes\Crypto\SHA384.cs" />
-    <Compile Include="Nodes\Crypto\SHA256.cs" />
-    <Compile Include="Nodes\Crypto\SHA1.cs" />
-    <Compile Include="Nodes\Generators\DateTime.cs" />
-    <Compile Include="Nodes\Generators\For.cs" />
-    <Compile Include="Nodes\Generators\Rng.cs" />
-    <Compile Include="Nodes\Generators\RandomString.cs" />
-    <Compile Include="Nodes\IO\BinaryFile.cs" />
-    <Compile Include="Nodes\IO\DirectoryExists.cs" />
-    <Compile Include="Nodes\IO\FileExists.cs" />
-    <Compile Include="Nodes\IO\ImageFile.cs" />
-    <Compile Include="Nodes\IO\TextFile.cs" />
-    <Compile Include="Nodes\Math\Pow.cs" />
-    <Compile Include="Nodes\Math\Max.cs" />
-    <Compile Include="Nodes\Math\Min.cs" />
-    <Compile Include="Nodes\Math\Divide.cs" />
-    <Compile Include="Nodes\Math\Abs.cs" />
-    <Compile Include="Nodes\Math\Normalize.cs" />
-    <Compile Include="Nodes\Math\Multiply.cs" />
-    <Compile Include="Nodes\Math\Add.cs" />
-    <Compile Include="Nodes\Abstract\BinaryOperator.cs" />
-    <Compile Include="Nodes\Strings\FormatXml.cs" />
-    <Compile Include="Nodes\Strings\Concat.cs" />
-    <Compile Include="Nodes\Strings\LastIndexOf.cs" />
-    <Compile Include="Nodes\Strings\FirstIndexOf.cs" />
-    <Compile Include="Nodes\Strings\Contains.cs" />
-    <Compile Include="Nodes\Strings\Join.cs" />
-    <Compile Include="Nodes\Strings\Split.cs" />
-    <Compile Include="Nodes\Strings\ToLower.cs" />
-    <Compile Include="Nodes\Strings\ToUpper.cs" />
-    <Compile Include="Nodes\Strings\Length.cs" />
-    <Compile Include="Nodes\Types\Certificate.cs" />
-    <Compile Include="Nodes\Network\UrlDecode.cs" />
-    <Compile Include="Nodes\Encoding\Base64Decode.cs" />
-    <Compile Include="Nodes\Network\UrlEncode.cs" />
-    <Compile Include="Nodes\Encoding\Base64Encode.cs" />
-    <Compile Include="Nodes\Strings\SubString.cs" />
-    <Compile Include="Nodes\Math\Dot.cs" />
-    <Compile Include="Nodes\Generators\Guid.cs" />
-    <Compile Include="Nodes\Types\Boolean.cs" />
-    <Compile Include="Nodes\Types\String.cs" />
-    <Compile Include="Nodes\Types\Scalar.cs" />
-    <Compile Include="Nodes\Types\Vector2.cs" />
-    <Compile Include="Nodes\Types\Color.cs" />
-    <Compile Include="Nodes\Types\Vector4.cs" />
-    <Compile Include="Core\NodeOperationBase.cs" />
-    <Compile Include="Nodes\Types\Vector3.cs" />
-    <Compile Include="Nodes\Types\Bitmap.cs" />
-    <Compile Include="Nodes\Generators\PerlinNoiseGenerator.cs" />
-    <Compile Include="Core\Connection.cs" />
+    <Compile Include="Controls\Connection.cs" />
     <Compile Include="Workspace.xaml.cs">
       <DependentUpon>Workspace.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -216,13 +158,15 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Nodes\Logical\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Common.Tools\Common.Tools.csproj">
       <Project>{e5673121-72d0-4ead-9b7d-fabb647d3e59}</Project>
       <Name>Common.Tools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UgUi.Nodes\UgUi.Nodes.csproj">
+      <Project>{3DC209D4-2EC8-4622-B893-E2216C205ECA}</Project>
+      <Name>UgUi.Nodes</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

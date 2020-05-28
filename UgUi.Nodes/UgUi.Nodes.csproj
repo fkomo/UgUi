@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3DC209D4-2EC8-4622-B893-E2216C205ECA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Ujeby.UgUi.Nodes</RootNamespace>
+    <AssemblyName>Ujeby.UgUi.Nodes</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes.cs" />
+    <Compile Include="NodeBase.cs" />
+    <Compile Include="Nodes\Abstract\BinaryOperator.cs" />
+    <Compile Include="Nodes\Abstract\Check.cs" />
+    <Compile Include="Nodes\Abstract\File.cs" />
+    <Compile Include="Nodes\Abstract\UnaryOperator.cs" />
+    <Compile Include="Nodes\Arrays\AtIndex.cs" />
+    <Compile Include="Nodes\Arrays\Count.cs" />
+    <Compile Include="Nodes\Crypto\SHA1.cs" />
+    <Compile Include="Nodes\Crypto\SHA256.cs" />
+    <Compile Include="Nodes\Crypto\SHA384.cs" />
+    <Compile Include="Nodes\Crypto\SHA512.cs" />
+    <Compile Include="Nodes\Encoding\Base64Decode.cs" />
+    <Compile Include="Nodes\Encoding\Base64Encode.cs" />
+    <Compile Include="Nodes\Generators\DateTime.cs" />
+    <Compile Include="Nodes\Generators\For.cs" />
+    <Compile Include="Nodes\Generators\Guid.cs" />
+    <Compile Include="Nodes\Generators\PerlinNoiseGenerator.cs" />
+    <Compile Include="Nodes\Generators\RandomString.cs" />
+    <Compile Include="Nodes\Generators\Rng.cs" />
+    <Compile Include="Nodes\IO\BinaryFile.cs" />
+    <Compile Include="Nodes\IO\DirectoryExists.cs" />
+    <Compile Include="Nodes\IO\FileExists.cs" />
+    <Compile Include="Nodes\IO\ImageFile.cs" />
+    <Compile Include="Nodes\IO\TextFile.cs" />
+    <Compile Include="Nodes\Math\Abs.cs" />
+    <Compile Include="Nodes\Math\Add.cs" />
+    <Compile Include="Nodes\Math\Divide.cs" />
+    <Compile Include="Nodes\Math\Dot.cs" />
+    <Compile Include="Nodes\Math\Max.cs" />
+    <Compile Include="Nodes\Math\Min.cs" />
+    <Compile Include="Nodes\Math\Multiply.cs" />
+    <Compile Include="Nodes\Math\Normalize.cs" />
+    <Compile Include="Nodes\Math\Pow.cs" />
+    <Compile Include="Nodes\Network\UrlDecode.cs" />
+    <Compile Include="Nodes\Network\UrlEncode.cs" />
+    <Compile Include="Nodes\Strings\Concat.cs" />
+    <Compile Include="Nodes\Strings\Contains.cs" />
+    <Compile Include="Nodes\Strings\FirstIndexOf.cs" />
+    <Compile Include="Nodes\Strings\FormatXml.cs" />
+    <Compile Include="Nodes\Strings\Join.cs" />
+    <Compile Include="Nodes\Strings\LastIndexOf.cs" />
+    <Compile Include="Nodes\Strings\Length.cs" />
+    <Compile Include="Nodes\Strings\Split.cs" />
+    <Compile Include="Nodes\Strings\SubString.cs" />
+    <Compile Include="Nodes\Strings\ToLower.cs" />
+    <Compile Include="Nodes\Strings\ToUpper.cs" />
+    <Compile Include="Nodes\Types\Bitmap.cs" />
+    <Compile Include="Nodes\Types\Boolean.cs" />
+    <Compile Include="Nodes\Types\Certificate.cs" />
+    <Compile Include="Nodes\Types\Color.cs" />
+    <Compile Include="Nodes\Types\Scalar.cs" />
+    <Compile Include="Nodes\Types\String.cs" />
+    <Compile Include="Nodes\Types\Vector2.cs" />
+    <Compile Include="Nodes\Types\Vector3.cs" />
+    <Compile Include="Nodes\Types\Vector4.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.Tools\Common.Tools.csproj">
+      <Project>{e5673121-72d0-4ead-9b7d-fabb647d3e59}</Project>
+      <Name>Common.Tools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Nodes\Logical\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -11,8 +11,8 @@ using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using Ujeby.Common.Tools;
 using Ujeby.UgUi.Core;
-using Ujeby.UgUi.Common;
 using System.Windows.Media.Imaging;
+using Ujeby.UgUi.Nodes;
 
 namespace Ujeby.UgUi.Controls
 {
@@ -597,7 +597,7 @@ namespace Ujeby.UgUi.Controls
 					// set right input value
 					var rightProperty = NodeInstance?.GetType().GetProperty(connection.RightPropertyName);
 					if (rightProperty != null)
-						rightProperty.SetValue(NodeInstance, Common.Convert.ChangeType(leftValue, rightProperty.PropertyType));
+						rightProperty.SetValue(NodeInstance, Ujeby.Common.Tools.Convert.ChangeType(leftValue, rightProperty.PropertyType));
 				}
 
 				if (NodeInstance != null)
