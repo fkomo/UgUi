@@ -63,7 +63,7 @@ namespace Ujeby.UgUi.Core
 			};
 			UIElements.Add(newElement1);
 
-			// TODO multiple lines between nodes
+			// TODO UI multiple lines between nodes
 			//var newElement2 = new Path()
 			//{
 			//	Stroke = new SolidColorBrush(color),
@@ -297,6 +297,22 @@ namespace Ujeby.UgUi.Core
 		internal bool HasUIElement(UIElement uiElement)
 		{
 			return UIElements.Any(e => e == uiElement);
+		}
+
+		internal void Scale(double scale, Point center)
+		{
+			// TODO UI SCALE connections - or maybe just update start/end point and make line thinner ?
+
+			foreach (var uiElement in UIElements)
+			{
+				var pathFigure = ((uiElement as Path).Data as PathGeometry).Figures.Single();
+
+				var start = pathFigure.StartPoint;
+				var end = (pathFigure.Segments.First(s => s is BezierSegment) as BezierSegment).Point3;
+				var topLeft = new Point(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
+
+				uiElement.RenderTransform = new ScaleTransform(scale, scale, center.X - topLeft.X, center.Y - topLeft.Y);
+			}
 		}
 	}
 }

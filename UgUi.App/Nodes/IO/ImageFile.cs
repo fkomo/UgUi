@@ -34,7 +34,7 @@ namespace Ujeby.UgUi.Operations.IO
 
 				if (!string.IsNullOrEmpty(Path) && File.Exists(Path))
 				{
-					// TODO ImageFile.Write
+					// TODO NODE ImageFile.Write
 
 					// read
 					var bitmapImage = new BitmapImage(new Uri(Path, UriKind.Absolute));

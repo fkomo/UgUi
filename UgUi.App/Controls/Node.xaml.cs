@@ -140,7 +140,7 @@ namespace Ujeby.UgUi.Controls
 			CustomColor = Color.FromArgb(0xff, colorValues[1], colorValues[2], colorValues[3]);
 
 			NodeHeader.Background = new LinearGradientBrush(CustomColor, Color.Multiply(CustomColor, (float)0.5), new Point(0, 1), new Point(1, 0));
-			(NodeHeader.Child as TextBlock).Text = CustomName;
+			NodeTitle.Text = CustomName;
 
 			#endregion
 
@@ -268,7 +268,7 @@ namespace Ujeby.UgUi.Controls
 						Grid.SetColumn(colorElement, 2);
 						MainPanel.Children.Add(colorElement);
 					}
-					// TODO CheckBox input
+					// TODO UI CheckBox input
 					//else if (inputProperty.PropertyType == typeof(bool))
 					//{
 					//	var checkBox = new CheckBox
@@ -521,6 +521,11 @@ namespace Ujeby.UgUi.Controls
 			}
 		}
 
+		internal void RenameBegin()
+		{
+			// TODO UI make node title header editable
+		}
+
 		/// <summary>
 		/// connections from other nodes [-> input]
 		/// </summary>
@@ -729,7 +734,7 @@ namespace Ujeby.UgUi.Controls
 
 		protected void ControlMouseEnter(object sender, MouseEventArgs e)
 		{
-			if (Mouse.LeftButton == MouseButtonState.Pressed || Selected)
+			if (/*Mouse.LeftButton == MouseButtonState.Pressed || */Selected)
 				return;
 
 			Hilight(true);
@@ -737,7 +742,7 @@ namespace Ujeby.UgUi.Controls
 
 		protected void ControlMouseLeave(object sender, MouseEventArgs e)
 		{
-			if (Mouse.LeftButton == MouseButtonState.Pressed || Selected)
+			if (/*Mouse.LeftButton == MouseButtonState.Pressed || */Selected)
 				return;
 
 			Hilight(false);

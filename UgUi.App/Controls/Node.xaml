@@ -79,8 +79,15 @@
 					<GradientStop Color="#ff990000" Offset="0"/>
 				</LinearGradientBrush>
 			</Border.Background>
-			<TextBlock Name="NodeTitle" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Text="Node" />
+			<TextBlock Name="NodeTitle" FontFamily="Consolas"
+					 HorizontalAlignment="Center" VerticalAlignment="Center" 
+					 Background="Transparent" 
+					 Text="Node" />
 		</Border>
 	</Grid>
+
+	<!--<UserControl.RenderTransform>
+		<ScaleTransform ScaleX="1" ScaleY="1"></ScaleTransform>
+	</UserControl.RenderTransform>-->
 
 </UserControl>

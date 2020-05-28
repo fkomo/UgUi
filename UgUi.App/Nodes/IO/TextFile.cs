@@ -43,7 +43,7 @@ namespace Ujeby.UgUi.Operations.IO
 			return base.GetOutputs().Concat(
 				new string[]
 				{
-					$"{ nameof(ReadLines) }.{ nameof(ReadLines.Length) }:{ ReadLines.Length.ToString() }",
+					$"{ nameof(ReadLines) }.{ nameof(ReadLines.Length) }:{ ReadLines?.Length.ToString() }",
 				}).ToArray();
 		}
 	}

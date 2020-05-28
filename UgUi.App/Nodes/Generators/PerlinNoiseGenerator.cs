@@ -3,8 +3,9 @@ using Ujeby.Common.Tools;
 using Ujeby.Common.Tools.Types;
 using Ujeby.UgUi.Core;
 
-namespace Ujeby.UgUi.Operations.Active
+namespace Ujeby.UgUi.Operations.Generators
 {
+	// TODO NODE PerlinNoise
 	// TODO Lacunarity, combining multiple PerlinNoises together ?
 
 	//[FunctionInfo]

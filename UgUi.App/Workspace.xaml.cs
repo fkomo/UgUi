@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Win32;
 using System.IO;
+using System.Threading;
 
 namespace Ujeby.UgUi
 {
@@ -39,6 +40,44 @@ namespace Ujeby.UgUi
 		/// </summary>
 		public static Node NodeDragged { get; set; } = null;
 		public static Point NodeDragStart { get; set; }
+
+		private Point GridOffset = new Point(0, 0);
+		private Point? WorkspaceDragStart = null;
+
+		private const int GridStep = 20;
+		private const int GridMajorStep = 100;
+		private readonly SolidColorBrush GridMinorBrush = new SolidColorBrush(Color.FromRgb(0x35, 0x35, 0x35));
+		private readonly SolidColorBrush GridMajorBrush = new SolidColorBrush(Color.FromRgb(0x3a, 0x3a, 0x3a));
+
+		private List<Line> VerticalLines = new List<Line>();
+		private List<Line> HorizontalLines = new List<Line>();
+
+		private static string WorkspaceFile { get; set; } = null;
+
+		private const double ScaleStep = 1.1;
+		private const double MinScale = 0.5;
+		private const double MaxScale = 1.0;
+		public double Scale { get; private set; } = 1.0;
+
+		private bool MessagesBoxCollapsed { get; set; } = false;
+		private Size? MessagesBoxBeforeCollapse { get; set; } = null;
+
+		private bool MessagesBoxResizing { get; set; } = false;
+		private Point MessagesBoxResizingLast { get; set; }
+
+		private static string UserDataFolder
+		{
+			get
+			{
+				var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				var userDataFolder = System.IO.Path.Combine(roaming, "Ujeby", "UgUi" + (Debugger.IsAttached ? "-debug" : null));
+
+				if (!System.IO.Directory.Exists(userDataFolder))
+					System.IO.Directory.CreateDirectory(userDataFolder);
+
+				return userDataFolder;
+			}
+		}
 
 		/// <summary>
 		/// dictionary of all possible nodes
@@ -285,18 +324,22 @@ namespace Ujeby.UgUi
 			return currentWorkspaceFile;
 		}
 
-		private static string UserDataFolder
+		private static bool SaveCurrent()
 		{
-			get
+			if (Nodes.Count < 1)
+				return true;
+
+			var result = MessageBox.Show($"Do you want to save changes { (WorkspaceFile != null ? $"to '{ WorkspaceFile }' " : "") }?", "Ujeby.gUi", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+			if (result == MessageBoxResult.Yes)
 			{
-				var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				var userDataFolder = System.IO.Path.Combine(roaming, "Ujeby", "UgUi" + (Debugger.IsAttached ? "-debug" : null));
-
-				if (!System.IO.Directory.Exists(userDataFolder))
-					System.IO.Directory.CreateDirectory(userDataFolder);
-
-				return userDataFolder;
+				if (!Save(WorkspaceFile, Nodes.Select(c => c as FrameworkElement).ToArray(), out string newFile))
+					return false;
 			}
+			else if (result == MessageBoxResult.Cancel)
+				return false;
+
+			return true;
 		}
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -334,17 +377,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private Point GridOffset = new Point(0, 0);
-		private Point? WorkspaceDragStart = null;
-
-		private const int GridStep = 20;
-		private const int GridMajorStep = 100;
-		private readonly SolidColorBrush GridMinorBrush = new SolidColorBrush(Color.FromRgb(0x35, 0x35, 0x35));
-		private readonly SolidColorBrush GridMajorBrush = new SolidColorBrush(Color.FromRgb(0x3a, 0x3a, 0x3a));
-
-		private List<Line> VerticalLines = new List<Line>();
-		private List<Line> HorizontalLines = new List<Line>();
-
 		/// <summary>
 		/// draw background workspace grid (minor / major lines)
 		/// </summary>
@@ -358,9 +390,12 @@ namespace Ujeby.UgUi
 			VerticalLines.Clear();
 			HorizontalLines.Clear();
 
-			for (var x = 0; x < ActualWidth; x += GridStep)
+			// TODO UI SCALE this is not accurate enough
+			var step = (GridStep * Scale);
+
+			for (var x = 0.0; x < ActualWidth; x += step)
 			{
-				var xFinal = x + (int)GridOffset.X % GridStep;
+				var xFinal = x + (int)GridOffset.X % step;
 				var major = (xFinal - (int)GridOffset.X) % GridMajorStep == 0;
 
 				var line = new Line
@@ -380,9 +415,9 @@ namespace Ujeby.UgUi
 				VerticalLines.Add(line);
 			}
 
-			for (var y = 0; y < ActualHeight; y += GridStep)
+			for (var y = 0.0; y < ActualHeight; y += step)
 			{
-				var yFinal = y + (int)GridOffset.Y % GridStep;
+				var yFinal = y + (int)GridOffset.Y % step;
 				var major = (yFinal - (int)GridOffset.Y) % GridMajorStep == 0;
 
 				var line = new Line
@@ -435,13 +470,7 @@ namespace Ujeby.UgUi
 				else if (menuItemId == ContextMenuItemId.Reset)
 				{
 					if (SaveCurrent())
-					{
-						RemoveAllControls();
-						SetTitle();
-
-						GridOffset = new Point(0, 0);
-						DrawGrid();
-					}
+						Reset();
 				}
 				else if (menuItemId == ContextMenuItemId.Collapse)
 				{
@@ -479,7 +508,8 @@ namespace Ujeby.UgUi
 				}
 				else if (menuItemId == ContextMenuItemId.Rename)
 				{
-
+					var nodeToRename = (contextData as FrameworkElement[]).Single() as Node;
+					nodeToRename.RenameBegin();
 				}
 			}
 			catch (Exception ex)
@@ -488,25 +518,16 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private static bool SaveCurrent()
+		private void Reset()
 		{
-			if (Nodes.Count < 1)
-				return true;
+			RemoveAllControls();
+			SetTitle();
 
-			var result = MessageBox.Show($"Do you want to save changes { (WorkspaceFile != null ? $"to '{ WorkspaceFile }' " : "") }?", "Ujeby.gUi", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+			Scale = 1.0;
 
-			if (result == MessageBoxResult.Yes)
-			{
-				if (!Save(WorkspaceFile, Nodes.Select(c => c as FrameworkElement).ToArray(), out string newFile))
-					return false;
-			}
-			else if (result == MessageBoxResult.Cancel)
-				return false;
-
-			return true;
+			GridOffset = new Point(0, 0);
+			DrawGrid();
 		}
-
-		private static string WorkspaceFile { get; set; }
 
 		private void SetTitle(string workspaceFile = null)
 		{
@@ -651,7 +672,7 @@ namespace Ujeby.UgUi
 						WorkspaceDragStart = mousePosition;
 						Cursor = Cursors.SizeAll;
 
-						// TODO show small workspace map in corner
+						// TODO UI SCALE show small workspace map in corner
 					}
 				}
 			}
@@ -714,7 +735,7 @@ namespace Ujeby.UgUi
 						Cursor = Cursors.Arrow;
 					}
 				}
-				
+
 				if (e.MiddleButton == MouseButtonState.Released)
 				{
 					// stop moving whole canvas
@@ -837,7 +858,24 @@ namespace Ujeby.UgUi
 		{
 			try
 			{
+				if (!Keyboard.IsKeyDown(Key.LeftCtrl))
+					return;
 
+				if (e.Delta > 0)
+					Scale *= ScaleStep;
+				else
+					Scale /= ScaleStep;
+				Scale = Math.Max(Math.Min(Scale, MaxScale), MinScale);
+
+				var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
+
+				foreach (var node in Nodes)
+					node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
+
+				foreach (var connection in Connections)
+					connection.Scale(Scale, scaleOrigin);
+
+				DrawGrid();
 			}
 			catch (Exception ex)
 			{
@@ -1138,9 +1176,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private bool MessagesBoxResizing { get; set; } = false;
-		private Point MessagesBoxResizingLast { get; set; }
-
 		private void MessagesBoxHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			try
@@ -1159,8 +1194,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private bool MessagesBoxCollapsed { get; set; } = false;
-		private Size? MessagesBoxBeforeCollapse { get; set; } = null;
 		private void ToggleMessagesBoxCollapse()
 		{
 			if (MessagesBoxCollapsed)
