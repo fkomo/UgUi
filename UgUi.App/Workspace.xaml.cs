@@ -785,8 +785,11 @@ namespace Ujeby.UgUi
 						var selectionBottomRight = new Point(selectionTopLeft.X + SelectionRectangle.ActualWidth, selectionTopLeft.Y + SelectionRectangle.ActualHeight);
 						foreach (FrameworkElement element in WorkspaceCanvas.Children)
 						{
-							var elementTopLeft = new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
-							var elementBottomRight = new Point(elementTopLeft.X + element.ActualWidth, elementTopLeft.Y + element.ActualHeight);
+							//var elementTopLeft = new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
+							var elementTopLeft = element.TranslatePoint(new Point(), WorkspaceCanvas);
+
+							//var elementBottomRight = new Point(elementTopLeft.X + element.ActualWidth, elementTopLeft.Y + element.ActualHeight);
+							var elementBottomRight = element.TranslatePoint(new Point(element.ActualWidth * Scale, element.ActualHeight * Scale), WorkspaceCanvas);
 
 							(element as Node)?.Hilight(
 								selectionTopLeft.X < elementTopLeft.X && elementBottomRight.X < selectionBottomRight.X &&
@@ -873,8 +876,9 @@ namespace Ujeby.UgUi
 				foreach (var node in Nodes)
 					node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
 
-				foreach (var connection in Connections)
-					connection.Scale(Scale, scaleOrigin);
+				foreach (var node in Nodes)
+					MoveControl(node, new Vector());
+				//	node.UpdateConnections(node.WorkspacePosition);
 
 				DrawGrid();
 			}
@@ -1145,11 +1149,12 @@ namespace Ujeby.UgUi
 		private void MoveControl(Node elementControl, Vector delta)
 		{
 			var currentPosition = new Point(Canvas.GetLeft(elementControl), Canvas.GetTop(elementControl));
-
 			Canvas.SetLeft(elementControl, currentPosition.X + delta.X);
 			Canvas.SetTop(elementControl, currentPosition.Y + delta.Y);
 
-			elementControl.UpdateConnections(new Point(currentPosition.X + delta.X, currentPosition.Y + delta.Y));
+			var transformedTopLeft = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
+
+			elementControl.UpdateConnections(new Point(transformedTopLeft.X + delta.X, transformedTopLeft.Y + delta.Y));
 		}
 
 		private void MessagesBoxHeader_MouseEnter(object sender, MouseEventArgs e)

@@ -656,11 +656,19 @@ namespace Ujeby.UgUi.Controls
 			{
 				var anchor = GetElementByName(anchorName) as FrameworkElement;
 				if (anchor == null)
-					return new Point(0, 0);
+					throw new FriendlyException($"Anchor:{ anchorName } not found");
 
 				var anchorPosition = anchor.TranslatePoint(new Point(), this);
-				anchorPosition.X += anchor.ActualWidth / 2;
-				anchorPosition.Y += anchor.ActualHeight / 2;
+				anchorPosition.X += anchor.ActualWidth * 0.5;
+				anchorPosition.Y += anchor.ActualHeight * 0.5;
+
+				var scaleX = (this.RenderTransform as ScaleTransform)?.ScaleX;
+				var scaleY = (this.RenderTransform as ScaleTransform)?.ScaleY;
+				if (scaleX.HasValue && scaleY.HasValue)
+				{
+					anchorPosition.X *= scaleX.Value;
+					anchorPosition.Y *= scaleY.Value;
+				}
 
 				return anchorPosition;
 			}

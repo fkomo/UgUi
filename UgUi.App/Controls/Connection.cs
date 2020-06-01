@@ -308,9 +308,9 @@ namespace Ujeby.UgUi.Controls
 
 				var start = pathFigure.StartPoint;
 				var end = (pathFigure.Segments.First(s => s is BezierSegment) as BezierSegment).Point3;
-				var topLeft = new Point(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
+				var midPoint = new Point((start.X + end.X) * 0.5, (start.Y + end.Y) * 0.5);
 
-				uiElement.RenderTransform = new ScaleTransform(scale, scale, center.X - topLeft.X, center.Y - topLeft.Y);
+				uiElement.RenderTransform = new ScaleTransform(scale, scale, center.X, center.Y);
 			}
 		}
 	}
