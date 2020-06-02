@@ -1,4 +1,6 @@
-﻿namespace Ujeby.UgUi.Nodes.Types
+﻿using Ujeby.UgUi.Nodes;
+
+namespace Ujeby.UgUi.Nodes.Types
 {
 	[NodeInfo(DisplayName = "String")]
 	public class _String : NodeBase

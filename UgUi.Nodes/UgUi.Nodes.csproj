@@ -50,6 +50,8 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="NodeBase.cs" />
     <Compile Include="Nodes\Abstract\BinaryOperator.cs" />
+    <Compile Include="Nodes\Abstract\HashNode.cs" />
+    <Compile Include="Nodes\Abstract\EncodingNode.cs" />
     <Compile Include="Nodes\Abstract\Check.cs" />
     <Compile Include="Nodes\Abstract\File.cs" />
     <Compile Include="Nodes\Abstract\UnaryOperator.cs" />
@@ -61,6 +63,10 @@
     <Compile Include="Nodes\Crypto\SHA384.cs" />
     <Compile Include="Nodes\Crypto\SHA512.cs" />
     <Compile Include="Nodes\Encoding\Base64Decode.cs" />
+    <Compile Include="Nodes\Encoding\BinToHex.cs" />
+    <Compile Include="Nodes\Encoding\ASCII.cs" />
+    <Compile Include="Nodes\Encoding\Unicode.cs" />
+    <Compile Include="Nodes\Encoding\UTF8.cs" />
     <Compile Include="Nodes\Encoding\Base64Encode.cs" />
     <Compile Include="Nodes\Generators\DateTime.cs" />
     <Compile Include="Nodes\Generators\For.cs" />

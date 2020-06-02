@@ -4,11 +4,11 @@ using Ujeby.UgUi.Nodes.Abstract;
 namespace Ujeby.UgUi.Nodes.Crypto
 {
 	[NodeInfo]
-	public class SHA1 : HashNode
+	public class MD5 : HashNode
 	{
 		public override void Execute()
 		{
-			Output = SHA1Managed.Create().ComputeHash(Input);
+			Output = new MD5CryptoServiceProvider().ComputeHash(Input);
 
 			base.Execute();
 		}

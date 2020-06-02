@@ -1,19 +1,15 @@
-﻿using Ujeby.UgUi.Nodes;
-using Ujeby.UgUi.Nodes.Types;
+﻿using Ujeby.UgUi.Nodes.Abstract;
 
 namespace Ujeby.UgUi.Nodes.Encoding
 {
 	[NodeInfo]
-	public class Base64Encode : _String
+	[IgnoredProperty(Name = nameof(EncodingNode.InputText))]
+	[IgnoredProperty(Name = nameof(EncodingNode.OutputBin))]
+	public class Base64Encode : EncodingNode
 	{
 		public override void Execute()
 		{
-			var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(input ?? string.Empty);
-			var newValue = System.Convert.ToBase64String(plainTextBytes);
-
-			SetField(ref this.value, newValue, nameof(Value));
-
-			base.Execute();
+			OutputText = System.Convert.ToBase64String(InputBin);
 		}
 	}
 }

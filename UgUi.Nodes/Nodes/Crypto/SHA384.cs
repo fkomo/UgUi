@@ -1,18 +1,14 @@
 ﻿using System.Security.Cryptography;
-using Ujeby.UgUi.Nodes;
-using Ujeby.UgUi.Nodes.Types;
+using Ujeby.UgUi.Nodes.Abstract;
 
 namespace Ujeby.UgUi.Nodes.Crypto
 {
 	[NodeInfo]
-	public class SHA384 : _String
+	public class SHA384 : HashNode
 	{
 		public override void Execute()
 		{
-			var hash = SHA384Managed.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(input));
-			var newValue = System.Convert.ToBase64String(hash);
-
-			SetField(ref this.value, newValue, nameof(Value));
+			Output = SHA384Managed.Create().ComputeHash(Input);
 
 			base.Execute();
 		}
