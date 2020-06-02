@@ -62,14 +62,27 @@
     <Compile Include="Nodes\Arrays\Inflate.cs" />
     <Compile Include="Nodes\Arrays\Count.cs" />
     <Compile Include="Nodes\Arrays\Deflate.cs" />
+    <Compile Include="Nodes\Arrays\SubArray.cs" />
+    <Compile Include="Nodes\Constants\Pi.cs" />
     <Compile Include="Nodes\Crypto\MD5.cs" />
     <Compile Include="Nodes\Crypto\SHA1.cs" />
     <Compile Include="Nodes\Crypto\SHA256.cs" />
     <Compile Include="Nodes\Crypto\SHA384.cs" />
     <Compile Include="Nodes\Crypto\SHA512.cs" />
     <Compile Include="Nodes\Encoding\Base64Decode.cs" />
+    <Compile Include="Nodes\Encoding\HexToInt.cs" />
     <Compile Include="Nodes\Encoding\BinToHex.cs" />
     <Compile Include="Nodes\Encoding\ASCII.cs" />
+    <Compile Include="Nodes\Logical\Xor.cs" />
+    <Compile Include="Nodes\Logical\Not.cs" />
+    <Compile Include="Nodes\Logical\Or.cs" />
+    <Compile Include="Nodes\Logical\And.cs" />
+    <Compile Include="Nodes\Math\Sqrt.cs" />
+    <Compile Include="Nodes\Math\Atan.cs" />
+    <Compile Include="Nodes\Math\Tan.cs" />
+    <Compile Include="Nodes\Math\Cos.cs" />
+    <Compile Include="Nodes\Math\Sin.cs" />
+    <Compile Include="Nodes\Strings\Compare.cs" />
     <Compile Include="Nodes\Strings\RemovePunctuation.cs" />
     <Compile Include="Nodes\Encoding\GuidToOracleRAW.cs" />
     <Compile Include="Nodes\Encoding\Unicode.cs" />
@@ -113,7 +126,8 @@
     <Compile Include="Nodes\Types\Boolean.cs" />
     <Compile Include="Nodes\Types\Certificate.cs" />
     <Compile Include="Nodes\Types\Color.cs" />
-    <Compile Include="Nodes\Types\Scalar.cs" />
+    <Compile Include="Nodes\Types\Integer.cs" />
+    <Compile Include="Nodes\Types\Double.cs" />
     <Compile Include="Nodes\Types\String.cs" />
     <Compile Include="Nodes\Types\Vector2.cs" />
     <Compile Include="Nodes\Types\Vector3.cs" />
@@ -126,9 +140,7 @@
       <Name>Common.Tools</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Nodes\Logical\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

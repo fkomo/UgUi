@@ -4,7 +4,7 @@ using Ujeby.UgUi.Nodes;
 namespace Ujeby.UgUi.Nodes.Types
 {
 	[NodeInfo]
-	public class Scalar : NodeBase
+	public class Double : NodeBase
 	{
 		private double x = 0.0;
 		[Input(Order = 0, InputAnchor = true, DisplayName = "", OutputAnchor = true, Serializable = true)]

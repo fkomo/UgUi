@@ -1,17 +1,13 @@
-﻿using Ujeby.UgUi.Nodes;
+﻿using System;
 
 namespace Ujeby.UgUi.Nodes.Arrays
 {
 	[NodeInfo]
 	public class AtIndex : NodeBase
 	{
-		protected object[] array;
+		protected Array array;
 		[Input(Order = 0, InputAnchor = true, AnchorOnly = true)]
-		public object[] Array
-		{
-			get { return array; }
-			set { SetField(ref array, value, nameof(Array)); }
-		}
+		public Array Array { get; set; }
 
 		protected int index = 0;
 		[Input(Order = 1, InputAnchor = true, Serializable = true)]
@@ -32,7 +28,7 @@ namespace Ujeby.UgUi.Nodes.Arrays
 		public override void Execute()
 		{
 			if (Array != null && Index < Array.Length)
-				Value = Array[Index];
+				Value = Array.GetValue(Index);
 			else
 				Value = null;
 		}
@@ -47,7 +43,10 @@ namespace Ujeby.UgUi.Nodes.Arrays
 
 		public override string[] GetOutputs()
 		{
-			return new string[] { Value?.ToString() };
+			return new string[] 
+			{ 
+				Value?.ToString()
+			};
 		}
 	}
 }
