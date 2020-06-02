@@ -4,12 +4,12 @@ using System.IO;
 namespace Ujeby.UgUi.Nodes.Abstract
 {
 	[NodeInfo(Abstract = true)]
-	public class HashNode : NodeBase
+	public class CompressNode : NodeBase
 	{
-		[Input(Order = 0, InputAnchor = true, DisplayName = "Bin", AnchorOnly = true)]
+		[Input(Order = 0, InputAnchor = true, DisplayName = "Src", AnchorOnly = true)]
 		public byte[] Input { get; set; }
 
-		[Output(AnchorOnly = true, DisplayName = "Hash")]
+		[Output(AnchorOnly = true, DisplayName = "Dest")]
 		public byte[] Output { get; set; }
 
 		[Output(AnchorOnly = true)]
@@ -31,6 +31,15 @@ namespace Ujeby.UgUi.Nodes.Abstract
 				//Output,
 				$"{ nameof(Output) }.{ nameof(Length) }:{ Length.ToString() }",
 			};
+		}
+
+		protected static void CopyTo(Stream source, Stream destination)
+		{
+			var copyBuffer = new byte[4096];
+
+			int count;
+			while ((count = source.Read(copyBuffer, 0, copyBuffer.Length)) != 0)
+				destination.Write(copyBuffer, 0, count);
 		}
 	}
 }

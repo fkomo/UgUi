@@ -579,6 +579,8 @@ namespace Ujeby.UgUi
 
 			GridOffset = new Point(0, 0);
 			DrawGrid();
+
+			MessagesBox.Text = string.Empty;
 		}
 
 		private void SetTitle(string workspaceFile = null)
