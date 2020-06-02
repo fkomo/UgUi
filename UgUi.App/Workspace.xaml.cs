@@ -247,6 +247,8 @@ namespace Ujeby.UgUi
 					foreach (var node in Nodes)
 						node.Select(false);
 
+					// TODO UI Open is slow - because execute is called on each change (new node / new connection)
+
 					// fix identifiers - if id is found in workspace generate new one
 					foreach (var node in file.Nodes)
 					{

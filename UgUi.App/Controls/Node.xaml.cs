@@ -721,6 +721,9 @@ namespace Ujeby.UgUi.Controls
 
 		public void UpdateConnections(Point topLeft)
 		{
+			if (Collapsed)
+				topLeft.Y += CustomNodeName.ActualHeight;
+
 			foreach (var connection in ConnectionsTo)
 			{
 				var relativeAnchorPosition = GetRelativeAnchorPosition(connection.LeftAnchorName);
