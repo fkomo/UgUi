@@ -36,7 +36,7 @@ namespace Ujeby.UgUi.Nodes.IO
 					// TODO NODE ImageFile.Write
 
 					// read
-					var bitmapImage = new BitmapImage(new Uri(Path, UriKind.Absolute));
+					var bitmapImage = new BitmapImage(new Uri(Path, UriKind.RelativeOrAbsolute));
 					Size = new v2(bitmapImage.PixelWidth, bitmapImage.PixelHeight);
 
 					Raw = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];

@@ -195,6 +195,7 @@ namespace Ujeby.UgUi
 						AddExtension = true,
 						DefaultExt = UgUiFile.Extension,
 						Filter = $"UgUi workspaces ({ UgUiFile.Extension })|*{ UgUiFile.Extension }",
+						InitialDirectory = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName,
 					};
 
 					if (dlg.ShowDialog() == true)
@@ -231,6 +232,7 @@ namespace Ujeby.UgUi
 				{
 					DefaultExt = UgUiFile.Extension,
 					Filter = $"UgUi workspaces ({ UgUiFile.Extension })|*{ UgUiFile.Extension }",
+					InitialDirectory = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName,
 				};
 				if (dlg.ShowDialog() == true)
 				{

@@ -19,7 +19,7 @@ namespace Ujeby.UgUi.Nodes.Abstract
 
 		public override string[] GetInputs()
 		{
-			return new string[] { Input.ToString() };
+			return new string[] { Input?.ToString() };
 		}
 
 		public override string[] GetOutputs()

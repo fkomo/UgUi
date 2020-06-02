@@ -158,7 +158,18 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Samples\arrays.xml" />
+    <Resource Include="Samples\constants_types.xml" />
+    <Resource Include="Samples\crypto.xml" />
+    <Resource Include="Samples\encoding.xml" />
+    <Resource Include="Samples\generators.xml" />
+    <Resource Include="Samples\io.xml" />
+    <Resource Include="Samples\math_logical.xml" />
+    <Resource Include="Samples\network.xml" />
+    <Resource Include="Samples\operators.xml" />
+    <Resource Include="Samples\strings.xml" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Common.Tools\Common.Tools.csproj">
       <Project>{e5673121-72d0-4ead-9b7d-fabb647d3e59}</Project>
@@ -168,6 +179,12 @@
       <Project>{3DC209D4-2EC8-4622-B893-E2216C205ECA}</Project>
       <Name>UgUi.Nodes</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Samples\textfile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Samples\baby_yoda.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
