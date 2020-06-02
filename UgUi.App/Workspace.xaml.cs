@@ -370,6 +370,8 @@ namespace Ujeby.UgUi
 				Canvas.SetZIndex(WorkspaceContextMenu, int.MaxValue);
 
 				SetTitle();
+
+				ToolBoxBorder.Visibility = Visibility.Collapsed;
 			}
 			catch (Exception ex)
 			{

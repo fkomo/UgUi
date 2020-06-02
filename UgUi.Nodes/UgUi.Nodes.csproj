@@ -105,6 +105,7 @@
     <Compile Include="Nodes\Strings\LastIndexOf.cs" />
     <Compile Include="Nodes\Strings\Length.cs" />
     <Compile Include="Nodes\Strings\Split.cs" />
+    <Compile Include="Nodes\Crypto\PBKDF2.cs" />
     <Compile Include="Nodes\Strings\SubString.cs" />
     <Compile Include="Nodes\Strings\ToLower.cs" />
     <Compile Include="Nodes\Strings\ToUpper.cs" />

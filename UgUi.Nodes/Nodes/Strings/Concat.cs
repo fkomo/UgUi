@@ -1,12 +1,11 @@
-﻿using Ujeby.UgUi.Nodes;
-using Ujeby.UgUi.Nodes.Abstract;
+﻿using Ujeby.UgUi.Nodes.Abstract;
 
 namespace Ujeby.UgUi.Nodes.Strings
 {
 	[NodeInfo]
 	public class Concat : BinaryOperator<string>
 	{
-		protected string format = "{0}{1}";
+		protected string format = "{A}{B}";
 		[Input(Order = 2, InputAnchor = true, OutputAnchor = true, Serializable = true)]
 		public string Format
 		{
@@ -16,7 +15,7 @@ namespace Ujeby.UgUi.Nodes.Strings
 
 		public override void Execute()
 		{
-			C = Format.Replace("{0}", A ?? string.Empty).Replace("{1}", B ?? string.Empty);
+			C = Format.Replace("{A}", A ?? string.Empty).Replace("{B}", B ?? string.Empty);
 
 			base.Execute();
 		}
