@@ -523,7 +523,15 @@ namespace Ujeby.UgUi.Controls
 
 		internal void RenameBegin()
 		{
-			// TODO UI make node title header editable
+			CustomNodeName.IsEnabled = true;
+			CustomNodeName.Focus();
+			CustomNodeName.SelectionStart = 0;
+		}
+
+		private void CustomNodeName_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Enter)
+				CustomNodeName.IsEnabled = false;
 		}
 
 		/// <summary>
@@ -573,10 +581,8 @@ namespace Ujeby.UgUi.Controls
 
 		public virtual Guid Execute(Guid transactionId)
 		{
-			if (LastTransactionId == transactionId)
+			if (LastTransactionId == transactionId || (ConnectionsFrom.Count != 0 && ConnectionsFrom.All(c => c.TransactionId == transactionId)))
 				return LastTransactionId;
-
-			LastTransactionId = transactionId;
 
 			try
 			{
@@ -584,11 +590,14 @@ namespace Ujeby.UgUi.Controls
 
 				foreach (var connection in ConnectionsFrom)
 				{
+					if (connection.TransactionId == transactionId)
+						continue;
+
 					// generate output from left node
-					(connection.Left as Node).Execute(LastTransactionId);
-					var leftNode = connection.Left.NodeInstance;
+					(connection.Left as Node).Execute(transactionId);
 
 					// get left output value
+					var leftNode = connection.Left.NodeInstance;
 					var leftValue = leftNode
 						.GetType()
 						.GetProperty(connection.LeftPropertyName)
@@ -597,10 +606,12 @@ namespace Ujeby.UgUi.Controls
 					// set right input value
 					var rightProperty = NodeInstance?.GetType().GetProperty(connection.RightPropertyName);
 					if (rightProperty != null)
-						rightProperty.SetValue(NodeInstance, Ujeby.Common.Tools.Convert.ChangeType(leftValue, rightProperty.PropertyType));
+						rightProperty.SetValue(NodeInstance, Common.Tools.Convert.ChangeType(leftValue, rightProperty.PropertyType));
+
+					connection.TransactionId = transactionId;
 				}
 
-				if (NodeInstance != null)
+				if (NodeInstance != null && LastTransactionId != transactionId)
 				{
 					try
 					{
@@ -618,7 +629,9 @@ namespace Ujeby.UgUi.Controls
 							?.Select(i => i == null ? null : (i.Length < LOG_MAX_INPUT_LENGTH ? i : (i.Substring(0, LOG_MAX_INPUT_LENGTH) + "...")).Replace(Environment.NewLine, "\\r\\n"));
 						var nodeOutputs = (NodeInstance as ILoggable)?.GetOutputs()
 							?.Select(i => i == null ? null : (i.Length < LOG_MAX_OUTPUT_LENGTH ? i : (i.Substring(0, LOG_MAX_OUTPUT_LENGTH) + "...")).Replace(Environment.NewLine, "\\r\\n"));
-						Log.WriteLine($"{ nodeName }('{ string.Join("', '", nodeInputs ?? new string[] { }) }')=['{ string.Join("', '", nodeOutputs ?? new string[] { }) }'] | { stopWatch.ElapsedMilliseconds }ms");
+						Log.WriteLine($"{ CustomNodeName.Text }:{ nodeName }('{ string.Join("', '", nodeInputs ?? new string[] { }) }')=['{ string.Join("', '", nodeOutputs ?? new string[] { }) }'] | { stopWatch.ElapsedMilliseconds }ms");
+
+						LastTransactionId = transactionId;
 					}
 					catch (Exception ex)
 					{
@@ -627,7 +640,7 @@ namespace Ujeby.UgUi.Controls
 				}
 
 				foreach (var outputConnection in ConnectionsTo)
-					outputConnection.Right.Execute(LastTransactionId);
+					outputConnection.Right.Execute(transactionId);
 			}
 			catch (FriendlyException ex)
 			{

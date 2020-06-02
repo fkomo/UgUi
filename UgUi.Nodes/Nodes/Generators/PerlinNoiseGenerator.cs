@@ -6,7 +6,6 @@ using Ujeby.UgUi.Nodes;
 namespace Ujeby.UgUi.Nodes.Generators
 {
 	// TODO NODE PerlinNoise
-	// TODO Lacunarity, combining multiple PerlinNoises together ?
 
 	//[FunctionInfo]
 	//[IgnoredProperty(Name = nameof(Generator.Value))]

@@ -50,44 +50,52 @@
 		</EventTrigger>
 	</UserControl.Triggers>
 
-	<Grid Name="MainPanel" Style="{StaticResource MainGrid}"
+	<DockPanel>
+
+		<Border DockPanel.Dock="Top">
+			<TextBox Foreground="#c0c0c0" Background="Transparent" Name="CustomNodeName" FontFamily="Consolas"
+					 HorizontalContentAlignment="Left" VerticalContentAlignment="Center"
+					 IsEnabled="false" BorderThickness="0"
+					 Height="24"
+					 KeyUp="CustomNodeName_KeyUp"></TextBox>
+		</Border>
+
+		<Grid Name="MainPanel" Style="{StaticResource MainGrid}"
 		  MouseEnter="ControlMouseEnter" MouseLeave="ControlMouseLeave"
 		  Background="#404040" Opacity=".8">
-		<Grid.Effect>
-			<DropShadowEffect ShadowDepth="0" BlurRadius="8" Color="Black" />
-		</Grid.Effect>
+			<Grid.Effect>
+				<DropShadowEffect ShadowDepth="0" BlurRadius="8" Color="Black" />
+			</Grid.Effect>
 
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="8" />
-			<ColumnDefinition Width="*" MinWidth="4" />
-			<ColumnDefinition Width="*" MinWidth="64"/>
-			<ColumnDefinition Width="*" MinWidth="4"/>
-			<ColumnDefinition Width="8" />
-		</Grid.ColumnDefinitions>		
-		
-		<Grid.RowDefinitions>
-			<RowDefinition Height="24" />
-			<RowDefinition Height="8" />
-		</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="8" />
+				<ColumnDefinition Width="*" MinWidth="4" />
+				<ColumnDefinition Width="*" MinWidth="64"/>
+				<ColumnDefinition Width="*" MinWidth="4"/>
+				<ColumnDefinition Width="8" />
+			</Grid.ColumnDefinitions>
 
-		<Border Name="NodeHeader" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
+			<Grid.RowDefinitions>
+				<RowDefinition Height="24" />
+				<RowDefinition Height="8" />
+			</Grid.RowDefinitions>
+
+			<Border Name="NodeHeader" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
 				BorderBrush="Black" BorderThickness="1"
 				MouseLeftButtonDown="Header_MouseLeftButtonDown">
-			<Border.Background>
-				<LinearGradientBrush EndPoint="0.0,1.0" StartPoint="1.0,0.0">
-					<GradientStop Color="#ffff0000" Offset="1"/>
-					<GradientStop Color="#ff990000" Offset="0"/>
-				</LinearGradientBrush>
-			</Border.Background>
-			<TextBlock Name="NodeTitle" FontFamily="Consolas"
+				<Border.Background>
+					<LinearGradientBrush EndPoint="0.0,1.0" StartPoint="1.0,0.0">
+						<GradientStop Color="#ffff0000" Offset="1"/>
+						<GradientStop Color="#ff990000" Offset="0"/>
+					</LinearGradientBrush>
+				</Border.Background>
+				<TextBlock Name="NodeTitle" FontFamily="Consolas"
 					 HorizontalAlignment="Center" VerticalAlignment="Center" 
 					 Background="Transparent" 
 					 Text="Node" />
-		</Border>
-	</Grid>
+			</Border>
+		</Grid>
 
-	<!--<UserControl.RenderTransform>
-		<ScaleTransform ScaleX="1" ScaleY="1"></ScaleTransform>
-	</UserControl.RenderTransform>-->
+	</DockPanel>
 
 </UserControl>

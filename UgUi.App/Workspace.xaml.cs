@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Win32;
 using System.IO;
-using System.Threading;
 using Ujeby.UgUi.Nodes;
 
 namespace Ujeby.UgUi
@@ -154,8 +153,6 @@ namespace Ujeby.UgUi
 			//if (ConnectionInProgress.LeftAnchorName.StartsWith($"{ OutputAnchorPrefix }Array") && !rightAnchorName.StartsWith($"{ InputAnchorPrefix }Array"))
 			//	return false;
 
-			// TODO check circular dependecy
-
 			return true;
 		}
 
@@ -171,6 +168,7 @@ namespace Ujeby.UgUi
 					TypeName = toSave.NodeInstance.GetType().FullName,
 					Position = toSave.WorkspacePosition,
 					Data = (toSave.NodeInstance as ISerializableNode)?.SerializeData(),
+					Name = toSave.CustomNodeName.Text,
 				});
 
 			var connections = new List<UgUiFile.Connection>();
@@ -280,6 +278,7 @@ namespace Ujeby.UgUi
 						}
 
 						newNode.Id = node.Id;
+						newNode.CustomNodeName.Text = node.Name;
 
 						if (!string.IsNullOrEmpty(node.Data))
 							(newNode.NodeInstance as ISerializableNode).DeserializeData(node.Data);
@@ -377,6 +376,58 @@ namespace Ujeby.UgUi
 				Log.WriteLine(ex.ToString());
 			}
 		}
+
+		private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			try
+			{
+				DrawGrid();
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private void Window_Closing(object sender, CancelEventArgs e)
+		{
+			// TODO UI save workspace before closing ?
+		}
+
+		private void Window_KeyDown(object sender, KeyEventArgs e)
+		{
+			try
+			{
+				// run
+				if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.R)
+					NewSimulation();
+
+				// select all
+				else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.A)
+				{
+					foreach (var element in WorkspaceCanvas.Children)
+						(element as Node)?.Select(true);
+				}
+
+				// toggle collapse selected
+				else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.T)
+				{
+					foreach (var element in WorkspaceCanvas.Children)
+						if ((element as Node)?.Selected == true)
+							(element as Node)?.ToggleCollapse();
+				}
+
+				else if (e.Key == Key.Escape)
+				{
+					HideCustomWindows();
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
 
 		/// <summary>
 		/// draw background workspace grid (minor / major lines)
@@ -831,6 +882,72 @@ namespace Ujeby.UgUi
 			}
 		}
 
+		private void Workspace_MouseWheel(object sender, MouseWheelEventArgs e)
+		{
+			try
+			{
+				if (!Keyboard.IsKeyDown(Key.LeftCtrl))
+					return;
+
+				if (e.Delta > 0)
+					Scale *= ScaleStep;
+				else
+					Scale /= ScaleStep;
+				Scale = Math.Max(Math.Min(Scale, MaxScale), MinScale);
+
+				var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
+
+				foreach (var node in Nodes)
+					node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
+
+				foreach (var node in Nodes)
+					MoveControl(node, new Vector());
+
+				DrawGrid();
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private void Workspace_MouseLeave(object sender, MouseEventArgs e)
+		{
+			try
+			{
+				if (SelectionRectangle != null)
+				{
+					WorkspaceCanvas.Children.Remove(SelectionRectangle);
+					SelectionRectangle = null;
+
+					// TODO UI deselect nodes that were selected with this selection rectangle
+				}
+
+				if (NewConnection != null)
+				{
+					NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
+					NewConnection = null;
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private void Workspace_Drop(object sender, DragEventArgs e)
+		{
+			try
+			{
+				if (e.Data.GetDataPresent(DataFormats.StringFormat))
+					AddControl((string)e.Data.GetData(DataFormats.StringFormat), e.GetPosition(WorkspaceCanvas));
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.Message);
+			}
+		}
+
 		private void MoveWorkspace(Vector offset)
 		{
 			DrawGrid();
@@ -856,58 +973,6 @@ namespace Ujeby.UgUi
 			}
 
 			return null;
-		}
-
-		private void Workspace_MouseWheel(object sender, MouseWheelEventArgs e)
-		{
-			try
-			{
-				if (!Keyboard.IsKeyDown(Key.LeftCtrl))
-					return;
-
-				if (e.Delta > 0)
-					Scale *= ScaleStep;
-				else
-					Scale /= ScaleStep;
-				Scale = Math.Max(Math.Min(Scale, MaxScale), MinScale);
-
-				var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
-
-				foreach (var node in Nodes)
-					node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
-
-				foreach (var node in Nodes)
-					MoveControl(node, new Vector());
-				//	node.UpdateConnections(node.WorkspacePosition);
-
-				DrawGrid();
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void Workspace_MouseLeave(object sender, MouseEventArgs e)
-		{
-			try
-			{
-				if (SelectionRectangle != null)
-				{
-					WorkspaceCanvas.Children.Remove(SelectionRectangle);
-					SelectionRectangle = null;
-				}
-
-				if (NewConnection != null)
-				{
-					NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
-					NewConnection = null;
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
 		}
 
 		private void OnSimulation(object sender, DoWorkEventArgs e)
@@ -1065,53 +1130,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private void Workspace_Drop(object sender, DragEventArgs e)
-		{
-			try
-			{
-				if (e.Data.GetDataPresent(DataFormats.StringFormat))
-					AddControl((string)e.Data.GetData(DataFormats.StringFormat), e.GetPosition(WorkspaceCanvas));
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.Message);
-			}
-		}
-
-		private void Window_KeyDown(object sender, KeyEventArgs e)
-		{
-			try
-			{
-				// run
-				if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.R)
-					NewSimulation();
-
-				// select all
-				else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.A)
-				{
-					foreach (var element in WorkspaceCanvas.Children)
-						(element as Node)?.Select(true);
-				}
-
-				// toggle collapse selected
-				else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.T)
-				{
-					foreach (var element in WorkspaceCanvas.Children)
-						if ((element as Node)?.Selected == true)
-							(element as Node)?.ToggleCollapse();
-				}
-
-				else if (e.Key == Key.Escape)
-				{
-					HideCustomWindows();
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
 		private void NewSimulation()
 		{
 			MessagesBox.Text = null;
@@ -1127,7 +1145,7 @@ namespace Ujeby.UgUi
 			worker.RunWorkerAsync();
 		}
 
-		internal void MoveControls(Node elementControl, Vector delta)
+		private void MoveControls(Node elementControl, Vector delta)
 		{
 			MoveControl(elementControl, delta);
 
@@ -1200,24 +1218,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private void ToggleMessagesBoxCollapse()
-		{
-			if (MessagesBoxCollapsed)
-			{
-				MessagesBoxBorder.Height = MessagesBoxBeforeCollapse.Value.Height;
-				MessagesBoxBeforeCollapse = null;
-			}
-			else
-			{
-				var messagesBoxMinHeight = MessagesBoxHeader.ActualHeight + MessagesBoxBorder.BorderThickness.Top + MessagesBoxBorder.BorderThickness.Bottom;
-
-				MessagesBoxBeforeCollapse = new Size(MessagesBoxBorder.ActualWidth, MessagesBoxBorder.ActualHeight);
-				MessagesBoxBorder.Height = messagesBoxMinHeight;
-			}
-
-			MessagesBoxCollapsed = !MessagesBoxCollapsed;
-		}
-
 		private void MessagesBoxHeader_MouseUp(object sender, MouseButtonEventArgs e)
 		{
 			try
@@ -1251,6 +1251,24 @@ namespace Ujeby.UgUi
 			}
 		}
 
+		private void ToggleMessagesBoxCollapse()
+		{
+			if (MessagesBoxCollapsed)
+			{
+				MessagesBoxBorder.Height = MessagesBoxBeforeCollapse.Value.Height;
+				MessagesBoxBeforeCollapse = null;
+			}
+			else
+			{
+				var messagesBoxMinHeight = MessagesBoxHeader.ActualHeight + MessagesBoxBorder.BorderThickness.Top + MessagesBoxBorder.BorderThickness.Bottom;
+
+				MessagesBoxBeforeCollapse = new Size(MessagesBoxBorder.ActualWidth, MessagesBoxBorder.ActualHeight);
+				MessagesBoxBorder.Height = messagesBoxMinHeight;
+			}
+
+			MessagesBoxCollapsed = !MessagesBoxCollapsed;
+		}
+
 		private void ToolBoxHeader_MouseEnter(object sender, MouseEventArgs e)
 		{
 			try
@@ -1273,23 +1291,6 @@ namespace Ujeby.UgUi
 			{
 				Log.WriteLine(ex.ToString());
 			}
-		}
-
-		private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-		{
-			try
-			{
-				DrawGrid();
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void Window_Closing(object sender, CancelEventArgs e)
-		{
-			// TODO save workspace before closing ?
 		}
 	}
 }

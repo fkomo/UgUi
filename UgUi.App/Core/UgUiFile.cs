@@ -33,6 +33,8 @@ namespace Ujeby.UgUi.Core
 			public Point Position { get; set; }
 			[DataMember]
 			public string Data { get; set; }
+			[DataMember]
+			public string Name { get; set; }
 		}
 
 		[DataMember]

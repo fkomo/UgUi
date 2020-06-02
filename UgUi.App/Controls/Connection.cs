@@ -27,6 +27,8 @@ namespace Ujeby.UgUi.Controls
 
 		private Color Color { get { return Left.CustomColor; } }
 
+		public Guid TransactionId { get; internal set; }
+
 		public Connection(Node left, Node right, string leftAnchorName, string rightAnchorName)
 		{
 			Left = left;
@@ -296,22 +298,6 @@ namespace Ujeby.UgUi.Controls
 		internal bool HasUIElement(UIElement uiElement)
 		{
 			return UIElements.Any(e => e == uiElement);
-		}
-
-		internal void Scale(double scale, Point center)
-		{
-			// TODO UI SCALE connections - or maybe just update start/end point and make line thinner ?
-
-			foreach (var uiElement in UIElements)
-			{
-				var pathFigure = ((uiElement as Path).Data as PathGeometry).Figures.Single();
-
-				var start = pathFigure.StartPoint;
-				var end = (pathFigure.Segments.First(s => s is BezierSegment) as BezierSegment).Point3;
-				var midPoint = new Point((start.X + end.X) * 0.5, (start.Y + end.Y) * 0.5);
-
-				uiElement.RenderTransform = new ScaleTransform(scale, scale, center.X, center.Y);
-			}
 		}
 	}
 }

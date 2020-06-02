@@ -55,6 +55,7 @@
     <Compile Include="Nodes\Abstract\UnaryOperator.cs" />
     <Compile Include="Nodes\Arrays\AtIndex.cs" />
     <Compile Include="Nodes\Arrays\Count.cs" />
+    <Compile Include="Nodes\Crypto\MD5.cs" />
     <Compile Include="Nodes\Crypto\SHA1.cs" />
     <Compile Include="Nodes\Crypto\SHA256.cs" />
     <Compile Include="Nodes\Crypto\SHA384.cs" />
