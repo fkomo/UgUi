@@ -20,25 +20,46 @@ namespace Ujeby.UgUi.Nodes.Generators
 			}
 		}
 
-		protected v4 value;
+		protected int count = 1;
+		[Input(Order = 1, InputAnchor = true, Serializable = true)]
+		public int Count
+		{
+			get { return count; }
+			set { SetField(ref count, value, nameof(Count)); }
+		}
+
+		protected v4[] value;
 		[Output(AnchorOnly = true, ReadOnly = true, DisplayName = "")]
-		public v4 Value { get; private set; }
+		public v4[] Value { get; private set; }
 
 		protected Random random = new Random(new RNGCryptoServiceProvider().GetHashCode());
 
 		public override void Execute()
 		{
-			Value = new v4(random.NextDouble(), random.NextDouble(), random.NextDouble(), random.NextDouble());
+			Value = new v4[Count];
+			for (var i = 0; i < count; ++i)
+				Value[i] = new v4(
+					random.NextDouble(), 
+					random.NextDouble(), 
+					random.NextDouble(), 
+					random.NextDouble());
 		}
 
 		public override string[] GetInputs()
 		{
-			return new string[] { Seed };
+			return new string[] 
+			{ 
+				Seed,
+				$"{ nameof(Count) }:{ Count.ToString() }",
+			};
 		}
 
 		public override string[] GetOutputs()
 		{
-			return new string[] { Value.ToString() };
+			return new string[] 
+			{ 
+				//Value.ToString() 
+			};
 		}
 	}
 }
