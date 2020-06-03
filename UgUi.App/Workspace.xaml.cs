@@ -224,7 +224,7 @@ namespace Ujeby.UgUi
 			return false;
 		}
 
-		internal static string Open(string currentWorkspaceFile, Point position, Func<string, Point, Node> addControl, Action<Connection> addConnection)
+		internal string Open(string currentWorkspaceFile, Point position)
 		{
 			try
 			{
@@ -246,8 +246,6 @@ namespace Ujeby.UgUi
 					// deselect all current nodes, only newly added would be selected
 					foreach (var node in Nodes)
 						node.Select(false);
-
-					// TODO UI Open is slow - because execute is called on each change (new node / new connection)
 
 					// fix identifiers - if id is found in workspace generate new one
 					foreach (var node in file.Nodes)
@@ -274,7 +272,7 @@ namespace Ujeby.UgUi
 					// add nodes
 					foreach (var node in file.Nodes)
 					{
-						var newNode = addControl(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
+						var newNode = AddControl(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
 						if (newNode == null)
 						{
 							Log.WriteLine($"Unknown node '{ node.TypeName }'");
@@ -310,13 +308,14 @@ namespace Ujeby.UgUi
 							var newConnection = new Connection(leftControl, rightControl, connection.LeftAnchorName, connection.RightAnchorName);
 							newConnection.Update(fromPosition, toPosition);
 
-							addConnection(newConnection);
+							AddConnection(newConnection, false);
 
 							newConnection.Right.ResetInputAnchorColor(newConnection.RightAnchorName);
 						}
 					}
 
 					Log.WriteLine($"Workspace '{ dlg.FileName }' loaded [{ file.Nodes.Length } nodes, { file.Connections.Length } connections]");
+
 					return dlg.FileName;
 				}
 			}
@@ -551,7 +550,7 @@ namespace Ujeby.UgUi
 				}
 				else if (menuItemId == ContextMenuItemId.Import)
 				{
-					Open(null, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
+					Open(null, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2));
 				}
 				else if (menuItemId == ContextMenuItemId.Open)
 				{
@@ -560,7 +559,7 @@ namespace Ujeby.UgUi
 						RemoveAllControls();
 						SetTitle();
 
-						var fileName = Open(WorkspaceFile, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2), AddControl, AddConnection);
+						var fileName = Open(WorkspaceFile, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2));
 						SetTitle(fileName);
 					}
 				}
@@ -1047,13 +1046,13 @@ namespace Ujeby.UgUi
 			WorkspaceCanvas.Children.Remove(control);
 		}
 
-		private void AddConnection(Connection connection)
+		private void AddConnection(Connection connection, bool execute = true)
 		{
 			Connections.Add(connection);
 			connection.AddToUICollection(WorkspaceCanvas.Children);
 
 			connection.Left.AddConnectionTo(connection);
-			connection.Right.AddConnectionFrom(connection);
+			connection.Right.AddConnectionFrom(connection, execute);
 		}
 
 		private Node AddControl(string key, Point position)

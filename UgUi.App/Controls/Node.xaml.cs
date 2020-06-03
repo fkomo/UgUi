@@ -694,12 +694,13 @@ namespace Ujeby.UgUi.Controls
 			ConnectionsTo.Add(connection);
 		}
 
-		public virtual void AddConnectionFrom(Connection connection)
+		public virtual void AddConnectionFrom(Connection connection, bool execute = true)
 		{
 			ConnectionsFrom.Add(connection);
 			EnableInputElement(connection.RightAnchorName, false);
 
-			Execute(Guid.NewGuid());
+			if (execute)
+				Execute(Guid.NewGuid());
 		}
 
 		public virtual void RemoveConnection(Connection connection)
