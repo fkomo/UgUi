@@ -585,7 +585,7 @@ namespace Ujeby.UgUi
 						var position = oldNode.TranslatePoint(new Point(), WorkspaceCanvas);
 						NodeClipboard.Add(new KeyValuePair<Point, string>(new Point(position.X - topLeft.X, position.Y - topLeft.Y), oldNode.NodeInstance.GetType().FullName));
 
-						// TODO add connections to clipboard too
+						// TODO UI add connections to clipboard too
 					}
 				}
 				else if (menuItemId == ContextMenuItemId.Paste)
@@ -601,7 +601,9 @@ namespace Ujeby.UgUi
 							newNode.Select(true);
 						}
 
-						// TODO add connections from clipboard to workspace
+						// TODO UI add connections from clipboard to workspace
+
+						UpdateScale();
 					}
 				}
 			}
@@ -945,20 +947,25 @@ namespace Ujeby.UgUi
 					Scale /= ScaleStep;
 				Scale = Math.Max(Math.Min(Scale, MaxScale), MinScale);
 
-				var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
-
-				foreach (var node in Nodes)
-					node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
-
-				foreach (var node in Nodes)
-					MoveControl(node, new Vector());
-
-				DrawGrid();
+				UpdateScale();
 			}
 			catch (Exception ex)
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private void UpdateScale()
+		{
+			var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
+
+			foreach (var node in Nodes)
+				node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
+
+			foreach (var node in Nodes)
+				MoveControl(node, new Vector());
+
+			DrawGrid();
 		}
 
 		private void Workspace_MouseLeave(object sender, MouseEventArgs e)
