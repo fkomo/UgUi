@@ -84,6 +84,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\MessagesBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Node.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -101,6 +105,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Behaviors\DragBehavior.cs" />
+    <Compile Include="Controls\MessagesBox.xaml.cs">
+      <DependentUpon>MessagesBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\UgUiFile.cs" />
     <Compile Include="Controls\CustomContextMenu.xaml.cs">
       <DependentUpon>CustomContextMenu.xaml</DependentUpon>

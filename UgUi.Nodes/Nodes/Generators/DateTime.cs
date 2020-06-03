@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using Ujeby.UgUi.Nodes;
-
+﻿
 namespace Ujeby.UgUi.Nodes.Generators
 {
 	[NodeInfo(DisplayName = "DateTime")]
-	public class _DateTime : NodeBase, ISerializableNode
+	public class _DateTime : NodeBase
 	{
 		protected string format = "yyyyMMdd_HHmmssfff";
 		[Input(Order = 0, InputAnchor = true, AnchorOnly = false, Serializable = true)]

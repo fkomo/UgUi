@@ -381,6 +381,7 @@ namespace Ujeby.UgUi
 				SetTitle();
 
 				ToolBoxBorder.Visibility = Visibility.Collapsed;
+				//MessagesBoxBorder.Visibility = Visibility.Collapsed;
 			}
 			catch (Exception ex)
 			{
@@ -503,15 +504,6 @@ namespace Ujeby.UgUi
 		private void WriteLineToOutput(string line)
 		{
 			MessagesBox.Text += line + Environment.NewLine;
-
-			//var item = new ListBoxItem()
-			//{
-			//	Content = line,
-			//	Background = new SolidColorBrush(FunctionControl.ElementBackground),
-			//	Foreground = new SolidColorBrush(FunctionControl.TextForeground)
-			//};
-
-			//MessagesBox.Items.Add(item);
 		}
 
 		private void ContextMenuItemClicked(ContextId contextId, ContextMenuItemId menuItemId, object contextData)
@@ -622,7 +614,7 @@ namespace Ujeby.UgUi
 			SetTitle();
 
 			// clear clipboard
-			NodeClipboard.Clear();
+			//NodeClipboard.Clear();
 
 			// reset grid
 			Scale = 1.0;

@@ -1,6 +1,4 @@
-﻿using Ujeby.UgUi.Nodes;
-
-namespace Ujeby.UgUi.Nodes.Generators
+﻿namespace Ujeby.UgUi.Nodes.Generators
 {
 	[NodeInfo]
 	public class For : NodeBase

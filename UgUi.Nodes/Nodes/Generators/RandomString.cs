@@ -2,12 +2,11 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
-using Ujeby.UgUi.Nodes;
 
 namespace Ujeby.UgUi.Nodes.Generators
 {
 	[NodeInfo]
-	public class RandomString : NodeBase, ISerializableNode
+	public class RandomString : NodeBase
 	{
 		protected int length = 0;
 		[Input(Order = 0, InputAnchor = true, OutputAnchor = true, Serializable = true)]

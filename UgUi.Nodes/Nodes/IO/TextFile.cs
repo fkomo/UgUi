@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using Ujeby.Common.Tools;
-using Ujeby.UgUi.Nodes;
 using Ujeby.UgUi.Nodes.Abstract;
 
 namespace Ujeby.UgUi.Nodes.IO
@@ -9,6 +8,9 @@ namespace Ujeby.UgUi.Nodes.IO
 	[NodeInfo]
 	public class TextFile : _File<string>
 	{
+		[Input(Order = 2, InputAnchor = true, AnchorOnly = true)]
+		public string[] Append { get; set; }
+
 		[Output(AnchorOnly = true)]
 		public string[] ReadLines { get; protected set; }
 
@@ -22,6 +24,10 @@ namespace Ujeby.UgUi.Nodes.IO
 				// write
 				if (!string.IsNullOrEmpty(Path) && toWrite != null)
 					File.WriteAllText(Path, toWrite, System.Text.Encoding.UTF8);
+
+				// append lines
+				if (!string.IsNullOrEmpty(Path) && Append != null)
+					File.AppendAllLines(Path, Append, System.Text.Encoding.UTF8);
 
 				// read
 				if (!string.IsNullOrEmpty(Path) && File.Exists(Path))

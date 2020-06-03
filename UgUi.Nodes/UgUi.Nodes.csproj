@@ -73,6 +73,7 @@
     <Compile Include="Nodes\Encoding\HexToInt.cs" />
     <Compile Include="Nodes\Encoding\BinToHex.cs" />
     <Compile Include="Nodes\Encoding\ASCII.cs" />
+    <Compile Include="Nodes\Generators\RandomBytes.cs" />
     <Compile Include="Nodes\Logical\Xor.cs" />
     <Compile Include="Nodes\Logical\Not.cs" />
     <Compile Include="Nodes\Logical\Or.cs" />
