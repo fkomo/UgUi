@@ -79,6 +79,8 @@ namespace Ujeby.UgUi
 			}
 		}
 
+		private static List<KeyValuePair<Point, string>> NodeClipboard { get; set; } = new List<KeyValuePair<Point, string>>();
+
 		/// <summary>
 		/// dictionary of all possible nodes
 		/// </summary>
@@ -243,9 +245,7 @@ namespace Ujeby.UgUi
 						return currentWorkspaceFile;
 					}
 
-					// deselect all current nodes, only newly added would be selected
-					foreach (var node in Nodes)
-						node.Select(false);
+					SelectAllNodes(false);
 
 					// fix identifiers - if id is found in workspace generate new one
 					foreach (var node in file.Nodes)
@@ -272,7 +272,7 @@ namespace Ujeby.UgUi
 					// add nodes
 					foreach (var node in file.Nodes)
 					{
-						var newNode = AddControl(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
+						var newNode = AddNodeControl(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
 						if (newNode == null)
 						{
 							Log.WriteLine($"Unknown node '{ node.TypeName }'");
@@ -327,6 +327,12 @@ namespace Ujeby.UgUi
 			return currentWorkspaceFile;
 		}
 
+		private void SelectAllNodes(bool select = true)
+		{
+			foreach (var node in Nodes)
+				node.Select(select);
+		}
+
 		private static bool SaveCurrent()
 		{
 			if (Nodes.Count < 1)
@@ -357,7 +363,7 @@ namespace Ujeby.UgUi
 				DrawGrid();
 
 				// create and hide toolbox
-				ToolBox = new ToolBox(AddControl)
+				ToolBox = new ToolBox(AddNodeControl)
 				{
 					Visibility = Visibility.Collapsed
 				};
@@ -432,7 +438,6 @@ namespace Ujeby.UgUi
 				Log.WriteLine(ex.ToString());
 			}
 		}
-
 
 		/// <summary>
 		/// draw background workspace grid (minor / major lines)
@@ -568,6 +573,37 @@ namespace Ujeby.UgUi
 					var nodeToRename = (contextData as FrameworkElement[]).Single() as Node;
 					nodeToRename.RenameBegin();
 				}
+				else if (menuItemId == ContextMenuItemId.Copy)
+				{
+					var toCopy = (contextData as FrameworkElement[]).Select(e => e as Node);
+
+					var topLeft = new Point(toCopy.Min(n => n.TranslatePoint(new Point(), WorkspaceCanvas).X), toCopy.Min(n => n.TranslatePoint(new Point(), WorkspaceCanvas).Y));
+
+					NodeClipboard.Clear();
+					foreach (var oldNode in toCopy)
+					{
+						var position = oldNode.TranslatePoint(new Point(), WorkspaceCanvas);
+						NodeClipboard.Add(new KeyValuePair<Point, string>(new Point(position.X - topLeft.X, position.Y - topLeft.Y), oldNode.NodeInstance.GetType().FullName));
+
+						// TODO add connections to clipboard too
+					}
+				}
+				else if (menuItemId == ContextMenuItemId.Paste)
+				{
+					if (NodeClipboard.Count > 0)
+					{
+						SelectAllNodes(false);
+
+						var mousePosition = Mouse.GetPosition(WorkspaceCanvas);
+						foreach (var node in NodeClipboard)
+						{
+							var newNode = AddNodeControl(node.Value, new Point(mousePosition.X + node.Key.X, mousePosition.Y + node.Key.Y));
+							newNode.Select(true);
+						}
+
+						// TODO add connections from clipboard to workspace
+					}
+				}
 			}
 			catch (Exception ex)
 			{
@@ -577,14 +613,21 @@ namespace Ujeby.UgUi
 
 		private void Reset()
 		{
+			// remove controls
 			RemoveAllControls();
+
+			// reset workspace name
 			SetTitle();
 
-			Scale = 1.0;
+			// clear clipboard
+			NodeClipboard.Clear();
 
+			// reset grid
+			Scale = 1.0;
 			GridOffset = new Point(0, 0);
 			DrawGrid();
 
+			// clear messages
 			MessagesBox.Text = string.Empty;
 		}
 
@@ -947,7 +990,7 @@ namespace Ujeby.UgUi
 			try
 			{
 				if (e.Data.GetDataPresent(DataFormats.StringFormat))
-					AddControl((string)e.Data.GetData(DataFormats.StringFormat), e.GetPosition(WorkspaceCanvas));
+					AddNodeControl((string)e.Data.GetData(DataFormats.StringFormat), e.GetPosition(WorkspaceCanvas));
 			}
 			catch (Exception ex)
 			{
@@ -1055,13 +1098,13 @@ namespace Ujeby.UgUi
 			connection.Right.AddConnectionFrom(connection, execute);
 		}
 
-		private Node AddControl(string key, Point position)
+		private Node AddNodeControl(string nodeType, Point position)
 		{
 			Type type = null;
-			if (ToolBoxStorage.ContainsKey(key))
-				type = ToolBoxStorage[key];
+			if (ToolBoxStorage.ContainsKey(nodeType))
+				type = ToolBoxStorage[nodeType];
 			else
-				type = ToolBoxStorage.SingleOrDefault(f => f.Value.FullName == key).Value;
+				type = ToolBoxStorage.SingleOrDefault(f => f.Value.FullName == nodeType).Value;
 
 			if (type == null)
 				return null;
@@ -1075,7 +1118,6 @@ namespace Ujeby.UgUi
 
 			WorkspaceCanvas.Children.Add(control);
 			WorkspaceCanvas.UpdateLayout();
-
 			Nodes.Add(control);
 
 			return control;

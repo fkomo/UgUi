@@ -23,6 +23,9 @@ namespace Ujeby.UgUi.Controls
 		Remove,
 		Export,
 		Collapse,
+
+		Copy,
+		Paste,
 	}
 
 	public enum ContextId
@@ -50,6 +53,8 @@ namespace Ujeby.UgUi.Controls
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Save, "Save Workspace" ),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.SaveAs, "Save Workspace As..." ),
 					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Paste, "Paste"),
+					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Reset, "Reset"),
 				}
 			},
@@ -67,6 +72,8 @@ namespace Ujeby.UgUi.Controls
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.HeaderName, "Multiple Nodes"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Collapse, "Collapse"),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Export, "Export As..."),
+					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
+					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Copy, "Copy"),
 					//new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Separator, null),
 					new KeyValuePair<ContextMenuItemId, string>(ContextMenuItemId.Remove, "Remove"),
 				}
