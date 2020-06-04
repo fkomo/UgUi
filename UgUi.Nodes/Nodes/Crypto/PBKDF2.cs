@@ -64,20 +64,25 @@ namespace Ujeby.UgUi.Nodes.Crypto
 		/// </summary>
 		public override void Execute()
 		{
-			var passwordHash = null as byte[];
-
-
-			using (var pbkdf2 = new Rfc2898DeriveBytes(Password, Salt, Iterations, CurrentHashAlgorithmName))
-				passwordHash = pbkdf2.GetBytes(PasswordHashLength);
-
-			Hash = string.Join(DELIMITER.ToString(), new string[]
+			if (Salt != null && !string.IsNullOrEmpty(HashAlgorithm))
 			{
-				HashAlgorithm,
-				Iterations.ToString(),
-				PasswordHashLength.ToString(),
-				Convert.ToBase64String(Salt),
-				Convert.ToBase64String(passwordHash)
-			});
+				var passwordHash = null as byte[];
+
+				// NOTE Login is not used
+				using (var pbkdf2 = new Rfc2898DeriveBytes(Password, Salt, Iterations, CurrentHashAlgorithmName))
+					passwordHash = pbkdf2.GetBytes(PasswordHashLength);
+
+				Hash = string.Join(DELIMITER.ToString(), new string[]
+				{
+					HashAlgorithm,
+					Iterations.ToString(),
+					PasswordHashLength.ToString(),
+					Convert.ToBase64String(Salt),
+					Convert.ToBase64String(passwordHash)
+				});
+			}
+			else
+				Hash = null;
 		}
 
 		public override string[] GetInputs()

@@ -8,7 +8,10 @@ namespace Ujeby.UgUi.Nodes.Crypto
 	{
 		public override void Execute()
 		{
-			Output = new MD5CryptoServiceProvider().ComputeHash(Input);
+			if (Input != null)
+				Output = new MD5CryptoServiceProvider().ComputeHash(Input);
+			else
+				Output = null;
 
 			base.Execute();
 		}

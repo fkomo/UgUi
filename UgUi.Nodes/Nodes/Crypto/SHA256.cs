@@ -8,7 +8,10 @@ namespace Ujeby.UgUi.Nodes.Crypto
 	{
 		public override void Execute()
 		{
-			Output = SHA256Managed.Create().ComputeHash(Input);
+			if (Input != null)
+				Output = SHA256Managed.Create().ComputeHash(Input);
+			else
+				Output = null;
 
 			base.Execute();
 		}
