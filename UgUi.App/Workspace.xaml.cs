@@ -280,7 +280,7 @@ namespace Ujeby.UgUi
 						}
 
 						newNode.Id = node.Id;
-						newNode.CustomNodeName.Text = node.Name;
+						newNode.SetCustomName(node.Name);
 
 						if (!string.IsNullOrEmpty(node.Data))
 							(newNode.NodeInstance as ISerializableNode).DeserializeData(node.Data);

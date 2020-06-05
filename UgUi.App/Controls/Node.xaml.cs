@@ -95,6 +95,8 @@ namespace Ujeby.UgUi.Controls
 		/// <param name="mainColor"></param>
 		protected void InitializeControl(Type nodeType)
 		{
+			CustomNodeName.Visibility = Visibility.Collapsed;
+
 			MainPanel.DataContext = NodeInstance;
 
 			var ignoredProperties = nodeType.CustomAttributes
@@ -521,8 +523,19 @@ namespace Ujeby.UgUi.Controls
 			}
 		}
 
+		internal void SetCustomName(string name)
+		{
+			CustomNodeName.Text = name;
+
+			if (string.IsNullOrEmpty(CustomNodeName.Text))
+				CustomNodeName.Visibility = Visibility.Collapsed;
+			else
+				CustomNodeName.Visibility = Visibility.Visible;
+		}
+
 		internal void RenameBegin()
 		{
+			CustomNodeName.Visibility = Visibility.Visible;
 			CustomNodeName.IsEnabled = true;
 			CustomNodeName.Focus();
 			CustomNodeName.SelectionStart = 0;
@@ -531,7 +544,10 @@ namespace Ujeby.UgUi.Controls
 		private void CustomNodeName_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter)
+			{
 				CustomNodeName.IsEnabled = false;
+				SetCustomName(CustomNodeName.Text);
+			}
 		}
 
 		/// <summary>
