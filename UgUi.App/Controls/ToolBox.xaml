@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             Height="384" Width="192">
+             Height="384">
 
 	<UserControl.Resources>
 		<DropShadowEffect x:Key="BlackGlow" BlurRadius="4" Color="#242424" ShadowDepth="0" />

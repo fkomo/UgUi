@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Ujeby.UgUi.Nodes
@@ -24,6 +27,20 @@ namespace Ujeby.UgUi.Nodes
 
 	public abstract class NodeBase : INotifyPropertyChanged, INode, ILoggable, ISerializableNode
 	{
+		public static string UserDataFolder
+		{
+			get
+			{
+				var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				var userDataFolder = Path.Combine(roaming, "Ujeby", "UgUi" + (Debugger.IsAttached ? "-debug" : null));
+
+				if (!Directory.Exists(userDataFolder))
+					Directory.CreateDirectory(userDataFolder);
+
+				return userDataFolder;
+			}
+		}
+
 		#region INode
 
 		public virtual void Execute()
