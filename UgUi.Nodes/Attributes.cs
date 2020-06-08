@@ -100,9 +100,29 @@ namespace Ujeby.UgUi.Nodes
 		public int Order { get; set; } = 0;
 
 		/// <summary>
-		/// 
+		/// if true, input value should be serialzed
 		/// </summary>
 		public bool Serializable { get; set; }
+
+		/// <summary>
+		/// TODO CORE Min InputAttribute validation
+		/// </summary>
+		public double Min { get; set; }
+
+		/// <summary>
+		/// TODO CORE Max InputAttribute validation
+		/// </summary>
+		public double Max { get; set; }
+
+		/// <summary>
+		/// TODO CORE Required InputAttribute validation
+		/// </summary>
+		public bool Required { get; set; }
+
+		/// <summary>
+		/// TODO CORE Tooltip InputAttribute
+		/// </summary>
+		public string Tooltip { get; set; }
 	}
 
 	public class OutputAttribute : BaseAttribute
@@ -126,6 +146,11 @@ namespace Ujeby.UgUi.Nodes
 		/// if true, there wont be no output anchor
 		/// </summary>
 		public bool NoAnchor { get; set; } = false;
+
+		/// <summary>
+		/// TODO CORE Tooltip OutputAttribute
+		/// </summary>
+		public string Tooltip { get; set; }
 	}
 
 	public class ImageBindingsAttribute : Attribute

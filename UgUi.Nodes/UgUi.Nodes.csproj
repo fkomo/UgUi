@@ -74,11 +74,13 @@
     <Compile Include="Nodes\Arrays\Deflate.cs" />
     <Compile Include="Nodes\Arrays\SubArray.cs" />
     <Compile Include="Nodes\Constants\Pi.cs" />
+    <Compile Include="Nodes\Crypto\Decrypt.cs" />
     <Compile Include="Nodes\Crypto\MD5.cs" />
     <Compile Include="Nodes\Crypto\SHA1.cs" />
     <Compile Include="Nodes\Crypto\SHA256.cs" />
     <Compile Include="Nodes\Crypto\SHA384.cs" />
     <Compile Include="Nodes\Crypto\SHA512.cs" />
+    <Compile Include="Nodes\Crypto\Encrypt.cs" />
     <Compile Include="Nodes\Crypto\VerifySignature.cs" />
     <Compile Include="Nodes\Crypto\Sign.cs" />
     <Compile Include="Nodes\Encoding\Base64Decode.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Nodes\Encoding\ASCII.cs" />
     <Compile Include="Nodes\Generators\SelfSignedCertificate.cs" />
     <Compile Include="Nodes\Generators\RandomBytes.cs" />
+    <Compile Include="Nodes\IO\Process.cs" />
     <Compile Include="Nodes\Logical\Xor.cs" />
     <Compile Include="Nodes\Logical\Not.cs" />
     <Compile Include="Nodes\Logical\Or.cs" />
@@ -99,6 +102,8 @@
     <Compile Include="Nodes\Math\Tan.cs" />
     <Compile Include="Nodes\Math\Cos.cs" />
     <Compile Include="Nodes\Math\Sin.cs" />
+    <Compile Include="Nodes\Network\HttpPOST.cs" />
+    <Compile Include="Nodes\Network\HttpGET.cs" />
     <Compile Include="Nodes\Strings\Compare.cs" />
     <Compile Include="Nodes\Strings\RemovePunctuation.cs" />
     <Compile Include="Nodes\Encoding\GuidToOracleRAW.cs" />
@@ -138,11 +143,13 @@
     <Compile Include="Nodes\Crypto\PBKDF2.cs" />
     <Compile Include="Nodes\Strings\SubString.cs" />
     <Compile Include="Nodes\Strings\ToLower.cs" />
+    <Compile Include="Nodes\Strings\RegEx.cs" />
     <Compile Include="Nodes\Strings\ToUpper.cs" />
     <Compile Include="Nodes\Types\Bitmap.cs" />
     <Compile Include="Nodes\Types\Boolean.cs" />
     <Compile Include="Nodes\Types\Certificate.cs" />
     <Compile Include="Nodes\Types\Color.cs" />
+    <Compile Include="Nodes\Generators\QRCode.cs" />
     <Compile Include="Nodes\Types\Integer.cs" />
     <Compile Include="Nodes\Types\Double.cs" />
     <Compile Include="Nodes\Types\String.cs" />

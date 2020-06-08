@@ -9,6 +9,8 @@ namespace Ujeby.UgUi.Nodes.Nodes.Crypto
     [NodeInfo]
 	public class Sign : NodeBase
 	{
+        // TODO NODE Sign
+
         //private static byte[] Sign(byte[] data, X509Certificate2 privateKey)
         //{
         //    if (data == null)

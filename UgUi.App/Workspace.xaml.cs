@@ -24,6 +24,9 @@ namespace Ujeby.UgUi
 	/// </summary>
 	public partial class Workspace : Window
 	{
+		// TODO WORKSPACE undo / redo action
+		// TODO WORKSPACE add multiple nodes to group / package
+
 		/// <summary>
 		///  selection rectangle around nodes
 		/// </summary>
@@ -308,13 +311,15 @@ namespace Ujeby.UgUi
 							var newConnection = new Connection(leftControl, rightControl, connection.LeftAnchorName, connection.RightAnchorName);
 							newConnection.Update(fromPosition, toPosition);
 
-							AddConnection(newConnection, false);
+							AddConnection(newConnection, true);
 
 							newConnection.Right.ResetInputAnchorColor(newConnection.RightAnchorName);
 						}
 					}
 
 					Log.WriteLine($"Workspace '{ dlg.FileName }' loaded [{ file.Nodes.Length } nodes, { file.Connections.Length } connections]");
+
+					// TODO CORE new simulation after imported / opened new workspace ?
 
 					return dlg.FileName;
 				}
@@ -403,7 +408,7 @@ namespace Ujeby.UgUi
 
 		private void Window_Closing(object sender, CancelEventArgs e)
 		{
-			// TODO UI save workspace before closing ?
+			// TODO WORKSPACE save before closing
 		}
 
 		private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -453,7 +458,7 @@ namespace Ujeby.UgUi
 			VerticalLines.Clear();
 			HorizontalLines.Clear();
 
-			// TODO UI SCALE this is not accurate enough
+			// TODO WORKSPACE scale this is not accurate enough
 			var step = (GridStep * Scale);
 
 			for (var x = 0.0; x < ActualWidth; x += step)
@@ -519,7 +524,8 @@ namespace Ujeby.UgUi
 					foreach (var control in contextData as FrameworkElement[])
 						RemoveControl(control as Node);
 
-					NewSimulation();
+					// TODO CORE new simulation after removed node
+					//NewSimulation();
 				}
 				else if (menuItemId == ContextMenuItemId.Reset)
 				{
@@ -577,7 +583,7 @@ namespace Ujeby.UgUi
 						var position = oldNode.TranslatePoint(new Point(), WorkspaceCanvas);
 						NodeClipboard.Add(new KeyValuePair<Point, string>(new Point(position.X - topLeft.X, position.Y - topLeft.Y), oldNode.NodeInstance.GetType().FullName));
 
-						// TODO UI add connections to clipboard too
+						// TODO WORKSPACE copy connections to clipboard
 					}
 				}
 				else if (menuItemId == ContextMenuItemId.Paste)
@@ -593,7 +599,7 @@ namespace Ujeby.UgUi
 							newNode.Select(true);
 						}
 
-						// TODO UI add connections from clipboard to workspace
+						// TODO WORKSPACE paste connections from clipboard
 
 						UpdateScale();
 					}
@@ -675,7 +681,7 @@ namespace Ujeby.UgUi
 				}
 				else if (e.LeftButton == MouseButtonState.Pressed)
 				{
-					if (e.ClickCount == 2)
+					if (Mouse.DirectlyOver == WorkspaceCanvas && e.ClickCount == 2)
 					{
 						// show toolbox
 						if (Mouse.DirectlyOver == WorkspaceCanvas)
@@ -713,16 +719,23 @@ namespace Ujeby.UgUi
 
 							if (anchor.Name != null && anchor.Name.StartsWith(Node.OutputAnchorPrefix))
 							{
-								// start drawing new connection
-								NewConnection = new Connection(elementControl, null, anchor.Name, null);
+								if (e.ClickCount == 2)
+								{
+									CreateDefaultNode(elementControl as Node, anchor.Name);
+								}
+								else
+								{
+									// start drawing new connection
+									NewConnection = new Connection(elementControl, null, anchor.Name, null);
 
-								var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
-								var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
+									var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
+									var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
 
-								NewConnection.Update(new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y), mousePosition);
-								NewConnection.AddToUICollection(WorkspaceCanvas.Children);
+									NewConnection.Update(new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y), mousePosition);
+									NewConnection.AddToUICollection(WorkspaceCanvas.Children);
 
-								Cursor = Cursors.Hand;
+									Cursor = Cursors.Hand;
+								}
 							}
 							else if (anchor.Name != null && anchor.Name.StartsWith(Node.InputAnchorPrefix) && Connections.Any(c => c.RightAnchorName == anchor.Name))
 							{
@@ -768,7 +781,7 @@ namespace Ujeby.UgUi
 						WorkspaceDragStart = mousePosition;
 						Cursor = Cursors.SizeAll;
 
-						// TODO UI SCALE show small workspace map in corner
+						// TODO WORKSPACE show small workspace map in corner while scaling
 					}
 				}
 			}
@@ -776,6 +789,13 @@ namespace Ujeby.UgUi
 			{
 				Log.WriteLine(ex.ToString());
 			}
+		}
+
+		private void CreateDefaultNode(Node node, string outputAnchorName)
+		{
+			// TODO WORKSPACE create default node based on output anchor property type (string / double / ...)
+
+			Log.WriteLine($"CreateDefaultNode({ node.NodeInstance.GetType().Name }, { outputAnchorName })");
 		}
 
 		private void Workspace_MouseUp(object sender, MouseButtonEventArgs e)
@@ -809,16 +829,17 @@ namespace Ujeby.UgUi
 							var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
 							var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
 
-							Connections.Add(NewConnection);
 							NewConnection.Update(null, new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y));
-							NewConnection.Left.AddConnectionTo(NewConnection);
-							NewConnection.Right.AddConnectionFrom(NewConnection);
+
+							AddConnection(NewConnection, false);
 						}
 						else
 						{
 							// remove existing connection
 							NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
-							NewSimulation();
+
+							// TODO CORE new simulation after removed connection ?
+							//NewSimulation();
 						}
 
 						NewConnection = null;
@@ -969,7 +990,7 @@ namespace Ujeby.UgUi
 					WorkspaceCanvas.Children.Remove(SelectionRectangle);
 					SelectionRectangle = null;
 
-					// TODO UI deselect nodes that were selected with this selection rectangle
+					// TODO WORKSPACE deselect nodes that were selected with this selection rectangle
 				}
 
 				if (NewConnection != null)
@@ -1088,13 +1109,17 @@ namespace Ujeby.UgUi
 			WorkspaceCanvas.Children.Remove(control);
 		}
 
-		private void AddConnection(Connection connection, bool execute = true)
+		private void AddConnection(Connection connection, bool addToUI)
 		{
 			Connections.Add(connection);
-			connection.AddToUICollection(WorkspaceCanvas.Children);
+
+			if (addToUI)
+				connection.AddToUICollection(WorkspaceCanvas.Children);
 
 			connection.Left.AddConnectionTo(connection);
-			connection.Right.AddConnectionFrom(connection, execute);
+
+			// TODO CORE new simulation after added connection ?
+			connection.Right.AddConnectionFrom(connection, false);
 		}
 
 		private Node AddNodeControl(string nodeType, Point position)

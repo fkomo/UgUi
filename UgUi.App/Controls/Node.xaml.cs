@@ -20,6 +20,9 @@ namespace Ujeby.UgUi.Controls
 	/// </summary>
 	public partial class Node : UserControl
 	{
+		// TODO UI NODE arrow icon/symbol on left side of header - toggle collapse action
+		// TODO UI NODE resizable nodes (textbox input, bitmap, ...) - ResizeBehavior ?
+
 		// Create a custom routed event by first registering a RoutedEventID
 		// This event uses the bubbling routing strategy
 		public static readonly RoutedEvent ImpulseEvent = EventManager.RegisterRoutedEvent("Impulse", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Node));
@@ -269,7 +272,7 @@ namespace Ujeby.UgUi.Controls
 						Grid.SetColumn(colorElement, 2);
 						MainPanel.Children.Add(colorElement);
 					}
-					// TODO UI CheckBox input
+					// TODO UI INPUT CustomCheckBox
 					//else if (inputProperty.PropertyType == typeof(bool))
 					//{
 					//	var checkBox = new CheckBox
@@ -941,6 +944,8 @@ namespace Ujeby.UgUi.Controls
 				SizeBeforeCollapse = new Size(MainPanel.ActualWidth, MainPanel.ActualHeight);
 				MainPanel.Height = NodeHeader.ActualHeight;
 			}
+
+			// TODO BUG input elements inside node are resized after node is collapsed
 
 			UpdateConnections(new Point(Canvas.GetLeft(this), Canvas.GetTop(this)));
 		}

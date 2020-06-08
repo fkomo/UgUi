@@ -64,7 +64,7 @@ namespace Ujeby.UgUi.Controls
 			};
 			UIElements.Add(newElement1);
 
-			// TODO UI multiple lines between nodes
+			// TODO WORKSPACE multiple lines between nodes
 			//var newElement2 = new Path()
 			//{
 			//	Stroke = new SolidColorBrush(color),

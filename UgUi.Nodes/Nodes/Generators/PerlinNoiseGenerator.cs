@@ -5,7 +5,7 @@ using Ujeby.UgUi.Nodes;
 
 namespace Ujeby.UgUi.Nodes.Generators
 {
-	// TODO NODE PerlinNoise
+	// TODO NODE PerlinNoiseGenerator
 
 	//[FunctionInfo]
 	//[IgnoredProperty(Name = nameof(Generator.Value))]

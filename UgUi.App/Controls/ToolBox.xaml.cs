@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Ujeby.Common.Tools;
 
 namespace Ujeby.UgUi.Controls
 {
@@ -18,17 +19,25 @@ namespace Ujeby.UgUi.Controls
 
 			CreateTool = createTool;
 
-			Elements = Workspace.ToolBoxStorage.Keys
+			UpdateElementList(Workspace.ToolBoxStorage.Keys
 				.Select(k => k)
-				.ToArray();
+				.ToArray());
+		}
+
+		private void UpdateElementList(string[] elements)
+		{
+			if (ElementList?.Items == null)
+				return;
 
 			var lastGroup = null as string;
-			foreach (var element in Elements)
+
+			ElementList?.Items?.Clear();
+			foreach (var element in elements)
 			{
 				var groupName = element.Split('.').First();
 				if (lastGroup != null && groupName != lastGroup)
 					ElementList.Items.Add(new Separator());
-	
+
 				ElementList.Items.Add(element);
 
 				lastGroup = groupName;
@@ -36,7 +45,6 @@ namespace Ujeby.UgUi.Controls
 		}
 
 		private Func<string, Point, Node> CreateTool;
-		private string[] Elements { get; set; }
 
 		private void ListViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
@@ -52,12 +60,24 @@ namespace Ujeby.UgUi.Controls
 
 		internal void Show()
 		{
+			Search.Text = null;
 			this.Visibility = Visibility.Visible;
 		}
 
 		internal void Hide()
 		{
+			Search.Text = null;
 			this.Visibility = Visibility.Collapsed;
 		}
+
+		private void Search_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			UpdateElementList(Workspace.ToolBoxStorage.Keys
+				.Where(k => string.IsNullOrEmpty(Search.Text) || k.ToLower().Contains(Search.Text.ToLower()))
+				.ToArray());
+		}
+
+		// TODO TOOLBOX allow up/down cursor in ElementList while changing Search TextBox.Text
+		// TODO TOOLBOX show tooltip for Search when no value is entered
 	}
 }

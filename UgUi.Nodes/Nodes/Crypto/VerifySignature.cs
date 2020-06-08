@@ -9,6 +9,8 @@ namespace Ujeby.UgUi.Nodes.Nodes.Crypto
     [NodeInfo]
 	public class VerifySignature : NodeBase
 	{
+        // TODO NODE VerifySignature
+
         //private static bool Verify(byte[] data, X509Certificate2 publicKey, byte[] signature)
         //{
         //    if (data == null)

@@ -80,9 +80,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\CustomColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\CustomContextMenu.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\CustomNumberInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\CustomTextInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MessagesBox.xaml">
       <SubType>Designer</SubType>
@@ -105,6 +117,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Behaviors\DragBehavior.cs" />
+    <Compile Include="Controls\CustomColorPicker.xaml.cs">
+      <DependentUpon>CustomColorPicker.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CustomNumberInput.xaml.cs">
+      <DependentUpon>CustomNumberInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CustomTextInput.xaml.cs">
+      <DependentUpon>CustomTextInput.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MessagesBox.xaml.cs">
       <DependentUpon>MessagesBox.xaml</DependentUpon>
     </Compile>

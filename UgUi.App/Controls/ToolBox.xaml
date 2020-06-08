@@ -18,11 +18,17 @@
 			<Border DockPanel.Dock="Top">
 				<Label Foreground="#c0c0c0" Background="#aa484848" FontFamily="Consolas" Name="Header">Toolbox</Label>
 			</Border>
+			<TextBox DockPanel.Dock="Top" Name="Search" 
+				BorderThickness="0"
+				FontFamily="Consolas" FontSize="12"
+				Background="#cc242424" Foreground="#c0c0c0"
+				Padding="8"
+				TextChanged="Search_TextChanged" />
+			<Separator DockPanel.Dock="Top"  />
 			<ListView Name="ElementList" 
-				  BorderThickness="0"
 				  FontFamily="Consolas" FontSize="12"
-				  Background="#cc242424"
-				  Foreground="#c0c0c0"
+				  Background="#cc242424" Foreground="#c0c0c0"
+				  BorderThickness="0"
 				  ScrollViewer.VerticalScrollBarVisibility="Disabled"
 				  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 				  Padding="4">

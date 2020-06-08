@@ -7,6 +7,8 @@ namespace Ujeby.UgUi.Nodes.Types
 	[NodeInfo]
 	public class Certificate : NodeBase
 	{
+		// TODO NODE Certificate
+
 		[Input(Order = 0, InputAnchor = true, AnchorOnly = true, OutputAnchor = true, DisplayName = "")]
 		public X509Certificate2 Input { get; set; }
 

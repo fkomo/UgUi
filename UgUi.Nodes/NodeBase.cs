@@ -10,6 +10,7 @@ namespace Ujeby.UgUi.Nodes
 {
 	public interface INode
 	{
+		// TODO CORE Execute should return true if output has been set (no errors), false otherwise
 		void Execute();
 	}
 
