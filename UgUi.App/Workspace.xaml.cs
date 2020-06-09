@@ -16,6 +16,7 @@ using System.Reflection;
 using Microsoft.Win32;
 using System.IO;
 using Ujeby.UgUi.Nodes;
+using System.Windows.Media.Animation;
 
 namespace Ujeby.UgUi
 {
@@ -28,12 +29,6 @@ namespace Ujeby.UgUi
 		// TODO WORKSPACE add multiple nodes to group / package
 
 		/// <summary>
-		///  selection rectangle around nodes
-		/// </summary>
-		public static Rectangle SelectionRectangle { get; set; } = null;
-		public static Point SelectionRectangleStart { get; set; }
-
-		/// <summary>
 		/// connection that is currently created
 		/// </summary>
 		public static Connection NewConnection { get; set; } = null;
@@ -41,8 +36,6 @@ namespace Ujeby.UgUi
 		/// <summary>
 		/// node that is currently moved with mouse
 		/// </summary>
-		public static Node NodeDragged { get; set; } = null;
-		public static Point NodeDragStart { get; set; }
 
 		private Point GridOffset = new Point(0, 0);
 		private Point? WorkspaceDragStart = null;
@@ -104,8 +97,16 @@ namespace Ujeby.UgUi
 
 		public Workspace()
 		{
+			// add all types from Ujeby.UgUi.Nodes with NodeInfo attribute to ToolBoxStorage
 			ToolBoxStorage.Clear();
-			AddNodesToToolBox("Ujeby.UgUi.Nodes.");
+			foreach (var nodeType in Assembly.LoadFrom("Ujeby.UgUi.Nodes.dll").GetTypes()
+				.Where(t => t.Namespace.StartsWith("Ujeby.UgUi.Nodes.") && t.CustomAttributes.Any(a => a.AttributeType == typeof(NodeInfoAttribute)))
+				.Where(t => !t.CustomAttributes.Single(a => a.AttributeType == typeof(NodeInfoAttribute)).NamedArguments.Any(na => na.MemberName == nameof(NodeInfoAttribute.Abstract))))
+			{
+				var groupName = nodeType.Namespace.Substring(nodeType.Namespace.LastIndexOf(".") + 1);
+				var elementName = AttributeHelper.GetValue<NodeInfoAttribute, string>(nodeType, nameof(NodeInfoAttribute.DisplayName)) ?? nodeType.Name;
+				ToolBoxStorage.Add($"{ groupName }.{ elementName }", nodeType);
+			}
 
 			InitializeComponent();
 
@@ -118,26 +119,6 @@ namespace Ujeby.UgUi
 		{
 			WorkspaceContextMenu?.Hide();
 			ToolBox?.Hide();
-		}
-
-		/// <summary>
-		/// add all types from sourceNamespace with FunctionInfo attribute to ToolBoxStorage
-		/// </summary>
-		/// <param name="sourceNamespace"></param>
-		private static void AddNodesToToolBox(string sourceNamespace)
-		{
-			var nodeTypes = Assembly.LoadFrom("Ujeby.UgUi.Nodes.dll").GetTypes()
-				.Where(t => t.Namespace.StartsWith(sourceNamespace) && t.CustomAttributes.Any(a => a.AttributeType == typeof(NodeInfoAttribute)))
-				.Where(t => !t.CustomAttributes.Single(a => a.AttributeType == typeof(NodeInfoAttribute)).NamedArguments.Any(na => na.MemberName == nameof(NodeInfoAttribute.Abstract)))
-				.ToArray();
-
-			foreach (var nodeType in nodeTypes)
-			{
-				var groupName = nodeType.Namespace.Substring(nodeType.Namespace.LastIndexOf(".") + 1);
-				var elementName = AttributeHelper.GetValue<NodeInfoAttribute, string>(nodeType, nameof(NodeInfoAttribute.DisplayName)) ?? nodeType.Name;
-
-				ToolBoxStorage.Add($"{ groupName }.{ elementName }", nodeType);
-			}
 		}
 
 		public static bool CheckConnectionInProgress(Node right, string rightAnchorName)
@@ -161,7 +142,7 @@ namespace Ujeby.UgUi
 			return true;
 		}
 
-		internal static bool Save(string currentWorkspaceFile, FrameworkElement[] nodesToSave, out string newFile)
+		internal bool Save(string currentWorkspaceFile, FrameworkElement[] nodesToSave, out string newFile)
 		{
 			newFile = null;
 
@@ -275,7 +256,7 @@ namespace Ujeby.UgUi
 					// add nodes
 					foreach (var node in file.Nodes)
 					{
-						var newNode = AddNodeControl(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
+						var newNode = AddNodeToWorkspace(node.TypeName, new Point(node.Position.X - center.X + position.X, node.Position.Y - center.Y + position.Y));
 						if (newNode == null)
 						{
 							Log.WriteLine($"Unknown node '{ node.TypeName }'");
@@ -338,7 +319,7 @@ namespace Ujeby.UgUi
 				node.Select(select);
 		}
 
-		private static bool SaveCurrent()
+		private bool SaveCurrent()
 		{
 			if (Nodes.Count < 1)
 				return true;
@@ -360,15 +341,13 @@ namespace Ujeby.UgUi
 		{
 			try
 			{
-				InitializeControlsTreeView();
-
 				// collapse messages box
 				ToggleMessagesBoxCollapse();
 
 				DrawGrid();
 
 				// create and hide toolbox
-				ToolBox = new ToolBox(AddNodeControl)
+				ToolBox = new ToolBox(AddNodeToWorkspace)
 				{
 					Visibility = Visibility.Collapsed
 				};
@@ -385,7 +364,6 @@ namespace Ujeby.UgUi
 
 				SetTitle();
 
-				ToolBoxBorder.Visibility = Visibility.Collapsed;
 				//MessagesBoxBorder.Visibility = Visibility.Collapsed;
 			}
 			catch (Exception ex)
@@ -522,7 +500,7 @@ namespace Ujeby.UgUi
 				else if (menuItemId == ContextMenuItemId.Remove)
 				{
 					foreach (var control in contextData as FrameworkElement[])
-						RemoveControl(control as Node);
+						RemoveNodeFromWorkspace(control as Node);
 
 					// TODO CORE new simulation after removed node
 					//NewSimulation();
@@ -559,7 +537,7 @@ namespace Ujeby.UgUi
 				{
 					if (SaveCurrent())
 					{
-						RemoveAllControls();
+						RemoveAllNodesFromWorkspace();
 						SetTitle();
 
 						var fileName = Open(WorkspaceFile, new Point(WorkspaceCanvas.ActualWidth / 2, WorkspaceCanvas.ActualHeight / 2));
@@ -595,7 +573,7 @@ namespace Ujeby.UgUi
 						var mousePosition = Mouse.GetPosition(WorkspaceCanvas);
 						foreach (var node in NodeClipboard)
 						{
-							var newNode = AddNodeControl(node.Value, new Point(mousePosition.X + node.Key.X, mousePosition.Y + node.Key.Y));
+							var newNode = AddNodeToWorkspace(node.Value, new Point(mousePosition.X + node.Key.X, mousePosition.Y + node.Key.Y));
 							newNode.Select(true);
 						}
 
@@ -614,7 +592,7 @@ namespace Ujeby.UgUi
 		private void Reset()
 		{
 			// remove controls
-			RemoveAllControls();
+			RemoveAllNodesFromWorkspace();
 
 			// reset workspace name
 			SetTitle();
@@ -649,127 +627,36 @@ namespace Ujeby.UgUi
 				var mousePosition = e.GetPosition(WorkspaceCanvas);
 
 				if (e.RightButton == MouseButtonState.Pressed)
-				{
-					// show context menu
+					ShowContextMenu(mousePosition);
 
-					var control = Mouse.DirectlyOver as FrameworkElement;
-					if (control != WorkspaceCanvas)
-					{
-						while (control != null && control as Node == null)
-							control = control.Parent as FrameworkElement;
-					}
-
-					if (control != null)
-					{
-						// get context
-
-						var headerName = null as string;
-						var nodes = Nodes.Where(c => c.Selected).Select(c => c as FrameworkElement).ToArray();
-						var contextId = control == WorkspaceCanvas ? ContextId.Workspace : ContextId.Node;
-						if (nodes.Length > 0)
-							contextId = ContextId.MultipleNodes;
-						else
-						{
-							nodes = new FrameworkElement[] { control };
-							headerName = (control as Node)?.CustomName;
-						}
-
-						Canvas.SetLeft(WorkspaceContextMenu, mousePosition.X);
-						Canvas.SetTop(WorkspaceContextMenu, mousePosition.Y);
-						WorkspaceContextMenu.Show(contextId, nodes, headerName);
-					}
-				}
 				else if (e.LeftButton == MouseButtonState.Pressed)
 				{
 					if (Mouse.DirectlyOver == WorkspaceCanvas && e.ClickCount == 2)
-					{
-						// show toolbox
-						if (Mouse.DirectlyOver == WorkspaceCanvas)
-						{
-							Canvas.SetLeft(ToolBox, mousePosition.X);
-							Canvas.SetTop(ToolBox, mousePosition.Y);
+						ShowToolbox(mousePosition);
 
-							ToolBox.Show();
-						}
-					}
 					else
 					{
 						if (Mouse.DirectlyOver == WorkspaceCanvas)
-						{
-							// start drawing selection rectangle
-							SelectionRectangleStart = mousePosition;
-							SelectionRectangle = new Rectangle
-							{
-								Fill = new SolidColorBrush(Color.FromArgb(0x20, 0x4b, 0x81, 0xd8)),
-								Stroke = new SolidColorBrush(Color.FromArgb(0x70, 0x4b, 0x81, 0xd8))
-							};
+							StartSelection(mousePosition);
 
-							WorkspaceCanvas.Children.Add(SelectionRectangle);
-							Canvas.SetLeft(SelectionRectangle, SelectionRectangleStart.X);
-							Canvas.SetTop(SelectionRectangle, SelectionRectangleStart.Y);
-
-							// deselect all nodes
-							foreach (var element in WorkspaceCanvas.Children)
-								(element as Node)?.Select(false);
-						}
 						else
 						{
 							var anchor = Mouse.DirectlyOver as FrameworkElement;
-							var elementControl = GetElementControl(anchor);
+							var elementControl = GetNodeFromAnchor(anchor);
 
 							if (anchor.Name != null && anchor.Name.StartsWith(Node.OutputAnchorPrefix))
 							{
 								if (e.ClickCount == 2)
-								{
 									CreateDefaultNode(elementControl as Node, anchor.Name);
-								}
+
 								else
-								{
-									// start drawing new connection
-									NewConnection = new Connection(elementControl, null, anchor.Name, null);
-
-									var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
-									var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
-
-									NewConnection.Update(new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y), mousePosition);
-									NewConnection.AddToUICollection(WorkspaceCanvas.Children);
-
-									Cursor = Cursors.Hand;
-								}
+									StarDrawingNewConnection(mousePosition, elementControl as Node, anchor.Name);
 							}
 							else if (anchor.Name != null && anchor.Name.StartsWith(Node.InputAnchorPrefix) && Connections.Any(c => c.RightAnchorName == anchor.Name))
-							{
-								// move existing connection
-								NewConnection = Connections.SingleOrDefault(c => elementControl == c.Right && c.RightAnchorName == anchor.Name);
-								if (NewConnection != null)
-								{
-									Connections.Remove(NewConnection);
+								StartMovingConnection(elementControl as Node, anchor.Name);
 
-									NewConnection.Left.RemoveConnection(NewConnection);
-									NewConnection.Right.RemoveConnection(NewConnection);
-
-									NewConnection.Right = null;
-									NewConnection.RightAnchorName = null;
-
-									Cursor = Cursors.Hand;
-								}
-							}
 							else
-							{
-								var element = Mouse.DirectlyOver as FrameworkElement;
-								if (element.Name == Node.HeaderElementName || element.Name == Node.HeaderTitleElementName)
-								{
-									// start moving node
-									while (element != null && element as Node == null)
-										element = element.Parent as FrameworkElement;
-									var node = element as Node;
-
-									NodeDragStart = mousePosition;
-									NodeDragged = node;
-
-									Cursor = Cursors.SizeAll;
-								}
-							}
+								StartMovingNode(mousePosition, Mouse.DirectlyOver as FrameworkElement);
 						}
 					}
 				}
@@ -791,81 +678,6 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private void CreateDefaultNode(Node node, string outputAnchorName)
-		{
-			// TODO WORKSPACE create default node based on output anchor property type (string / double / ...)
-
-			Log.WriteLine($"CreateDefaultNode({ node.NodeInstance.GetType().Name }, { outputAnchorName })");
-		}
-
-		private void Workspace_MouseUp(object sender, MouseButtonEventArgs e)
-		{
-			try
-			{
-				if (e.LeftButton == MouseButtonState.Released)
-				{
-					if (SelectionRectangle != null)
-					{
-						// stop drawing selection region
-
-						foreach (FrameworkElement element in WorkspaceCanvas.Children)
-							(element as Node)?.Select((element as Node).Hilighted);
-
-						WorkspaceCanvas.Children.Remove(SelectionRectangle);
-						SelectionRectangle = null;
-					}
-					else if (NewConnection != null)
-					{
-						var anchor = Mouse.DirectlyOver as FrameworkElement;
-						var elementControl = GetElementControl(anchor);
-
-						if (anchor.Name != null && anchor.Name.StartsWith(Node.InputAnchorPrefix) && elementControl != null && CheckConnectionInProgress(elementControl, anchor.Name))
-						{
-							// finalize new connection
-
-							NewConnection.Right = elementControl;
-							NewConnection.RightAnchorName = anchor.Name;
-
-							var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
-							var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
-
-							NewConnection.Update(null, new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y));
-
-							AddConnection(NewConnection, false);
-						}
-						else
-						{
-							// remove existing connection
-							NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
-
-							// TODO CORE new simulation after removed connection ?
-							//NewSimulation();
-						}
-
-						NewConnection = null;
-						Cursor = Cursors.Arrow;
-					}
-					else if (NodeDragged != null)
-					{
-						// stop moving node
-						NodeDragged = null;
-						Cursor = Cursors.Arrow;
-					}
-				}
-
-				if (e.MiddleButton == MouseButtonState.Released)
-				{
-					// stop moving whole canvas
-					WorkspaceDragStart = null;
-					Cursor = Cursors.Arrow;
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
 		private void Workspace_MouseMove(object sender, MouseEventArgs e)
 		{
 			try
@@ -875,55 +687,13 @@ namespace Ujeby.UgUi
 				if (e.LeftButton == MouseButtonState.Pressed)
 				{
 					if (SelectionRectangle != null)
-					{
-						// update selection region
+						UpdateSelection(mousePosition);
 
-						var newWidth = mousePosition.X - SelectionRectangleStart.X;
-						var newHeight = mousePosition.Y - SelectionRectangleStart.Y;
-
-						if (newWidth > 0)
-							SelectionRectangle.Width = newWidth;
-						else if (newWidth < 0)
-						{
-							SelectionRectangle.Width = -newWidth;
-							Canvas.SetLeft(SelectionRectangle, mousePosition.X);
-						}
-
-						if (newHeight > 0)
-							SelectionRectangle.Height = newHeight;
-						else if (newHeight < 0)
-						{
-							SelectionRectangle.Height = -newHeight;
-							Canvas.SetTop(SelectionRectangle, mousePosition.Y);
-						}
-
-						var selectionTopLeft = new Point(Canvas.GetLeft(SelectionRectangle), Canvas.GetTop(SelectionRectangle));
-						var selectionBottomRight = new Point(selectionTopLeft.X + SelectionRectangle.ActualWidth, selectionTopLeft.Y + SelectionRectangle.ActualHeight);
-						foreach (FrameworkElement element in WorkspaceCanvas.Children)
-						{
-							//var elementTopLeft = new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
-							var elementTopLeft = element.TranslatePoint(new Point(), WorkspaceCanvas);
-
-							//var elementBottomRight = new Point(elementTopLeft.X + element.ActualWidth, elementTopLeft.Y + element.ActualHeight);
-							var elementBottomRight = element.TranslatePoint(new Point(element.ActualWidth * Scale, element.ActualHeight * Scale), WorkspaceCanvas);
-
-							(element as Node)?.Hilight(
-								selectionTopLeft.X < elementTopLeft.X && elementBottomRight.X < selectionBottomRight.X &&
-								selectionTopLeft.Y < elementTopLeft.Y && elementBottomRight.Y < selectionBottomRight.Y
-								);
-						}
-					}
 					else if (NewConnection != null)
-						// update current connection
-						NewConnection.Update(null, mousePosition);
+						DrawNewConnection(mousePosition);
 
-					else if (NodeDragged != null)
-					{
-						// move node / selected nodes
-
-						MoveControls(NodeDragged, mousePosition - NodeDragStart);
-						NodeDragStart = mousePosition;
-					}
+					else if (NodeMoving != null)
+						UpdateMovingNode(mousePosition);
 				}
 				else if (e.MiddleButton == MouseButtonState.Pressed)
 				{
@@ -939,6 +709,35 @@ namespace Ujeby.UgUi
 						MoveWorkspace(offset);
 						WorkspaceDragStart = mousePosition;
 					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine(ex.ToString());
+			}
+		}
+
+		private void Workspace_MouseUp(object sender, MouseButtonEventArgs e)
+		{
+			try
+			{
+				if (e.LeftButton == MouseButtonState.Released)
+				{
+					if (SelectionRectangle != null)
+						StopSelection();
+
+					else if (NewConnection != null)
+						StopDrawingNewConnection();
+
+					else if (NodeMoving != null)
+						StopMovingNode();
+				}
+
+				if (e.MiddleButton == MouseButtonState.Released)
+				{
+					// stop moving whole canvas
+					WorkspaceDragStart = null;
+					Cursor = Cursors.Arrow;
 				}
 			}
 			catch (Exception ex)
@@ -968,6 +767,58 @@ namespace Ujeby.UgUi
 			}
 		}
 
+		/// <summary>
+		/// show toolbox at given position
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		private void ShowToolbox(Point mousePosition)
+		{
+			Canvas.SetLeft(ToolBox, mousePosition.X);
+			Canvas.SetTop(ToolBox, mousePosition.Y);
+
+			ToolBox.Show();
+		}
+
+		/// <summary>
+		/// show context menu at given position
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		private void ShowContextMenu(Point mousePosition)
+		{
+			var control = Mouse.DirectlyOver as FrameworkElement;
+			if (control != WorkspaceCanvas)
+			{
+				while (control != null && control as Node == null)
+					control = control.Parent as FrameworkElement;
+			}
+
+			if (control != null)
+			{
+				// get context
+				var headerName = null as string;
+				var nodes = Nodes.Where(c => c.Selected).Select(c => c as FrameworkElement).ToArray();
+				var contextId = control == WorkspaceCanvas ? ContextId.Workspace : ContextId.Node;
+				if (nodes.Length > 0)
+					contextId = ContextId.MultipleNodes;
+				else
+				{
+					nodes = new FrameworkElement[] { control };
+					headerName = (control as Node)?.CustomName;
+				}
+
+				Canvas.SetLeft(WorkspaceContextMenu, mousePosition.X);
+				Canvas.SetTop(WorkspaceContextMenu, mousePosition.Y);
+				WorkspaceContextMenu.Show(contextId, nodes, headerName);
+			}
+		}
+
+		private void CreateDefaultNode(Node node, string outputAnchorName)
+		{
+			// TODO WORKSPACE create default node based on output anchor property type (string / double / ...)
+
+			Log.WriteLine($"CreateDefaultNode({ node.NodeInstance.GetType().Name }, { outputAnchorName })");
+		}
+
 		private void UpdateScale()
 		{
 			var scaleOrigin = new Point(WorkspaceCanvas.ActualWidth * 0.5 + GridOffset.X, WorkspaceCanvas.ActualHeight * 0.5 + GridOffset.Y);
@@ -976,7 +827,7 @@ namespace Ujeby.UgUi
 				node.RenderTransform = new ScaleTransform(Scale, Scale, scaleOrigin.X - Canvas.GetLeft(node), scaleOrigin.Y - Canvas.GetTop(node));
 
 			foreach (var node in Nodes)
-				MoveControl(node, new Vector());
+				MoveNode(node, new Vector());
 
 			DrawGrid();
 		}
@@ -986,12 +837,7 @@ namespace Ujeby.UgUi
 			try
 			{
 				if (SelectionRectangle != null)
-				{
-					WorkspaceCanvas.Children.Remove(SelectionRectangle);
-					SelectionRectangle = null;
-
-					// TODO WORKSPACE deselect nodes that were selected with this selection rectangle
-				}
+					StopSelection(true);
 
 				if (NewConnection != null)
 				{
@@ -1005,46 +851,373 @@ namespace Ujeby.UgUi
 			}
 		}
 
-		private void Workspace_Drop(object sender, DragEventArgs e)
+		#region node moving
+
+		private Node NodeMoving { get; set; } = null;
+		private Point NodeMovingStart { get; set; }
+
+		/// <summary>
+		/// start moving/daging node
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		/// <param name="node"></param>
+		private void StartMovingNode(Point mousePosition, FrameworkElement nodeElement)
 		{
-			try
+			if (nodeElement?.Name == Node.HeaderElementName || nodeElement?.Name == Node.HeaderTitleElementName)
 			{
-				if (e.Data.GetDataPresent(DataFormats.StringFormat))
-					AddNodeControl((string)e.Data.GetData(DataFormats.StringFormat), e.GetPosition(WorkspaceCanvas));
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.Message);
+				// start moving node
+				while (nodeElement != null && nodeElement as Node == null)
+					nodeElement = nodeElement.Parent as FrameworkElement;
+				var node = nodeElement as Node;
+
+				NodeMovingStart = mousePosition;
+				NodeMoving = node;
+
+				Cursor = Cursors.SizeAll;
 			}
 		}
+
+		/// <summary>
+		/// update moving node/nodes position
+		/// </summary>
+		private void UpdateMovingNode(Point mousePosition)
+		{
+			var delta = mousePosition - NodeMovingStart;
+
+			MoveNode(NodeMoving, delta);
+
+			if (NodeMoving.Selected)
+			{
+				// move other selected elements
+				foreach (var control in WorkspaceCanvas.Children)
+				{
+					if (control == NodeMoving)
+						continue;
+
+					var otherElementControl = control as Node;
+					if (otherElementControl != null && otherElementControl.Selected)
+						MoveNode(otherElementControl, delta);
+				}
+			}
+
+			NodeMovingStart = mousePosition;
+		}
+
+		/// <summary>
+		/// stop moving node
+		/// </summary>
+		private void StopMovingNode()
+		{
+			NodeMoving = null;
+			Cursor = Cursors.Arrow;
+		}
+
+		/// <summary>
+		/// move multiple nodes
+		/// </summary>
+		/// <param name="elementControl"></param>
+		/// <param name="delta"></param>
+		private void MoveNode(Node elementControl, Vector delta)
+		{
+			var currentPosition = new Point(Canvas.GetLeft(elementControl), Canvas.GetTop(elementControl));
+			Canvas.SetLeft(elementControl, currentPosition.X + delta.X);
+			Canvas.SetTop(elementControl, currentPosition.Y + delta.Y);
+
+			var transformedTopLeft = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
+
+			elementControl.UpdateConnections(new Point(transformedTopLeft.X + delta.X, transformedTopLeft.Y + delta.Y));
+		}
+
+		#endregion
+
+		#region new connection
+
+		/// <summary>
+		/// add new connection to Connections list
+		/// </summary>
+		/// <param name="connection"></param>
+		/// <param name="addToUI"></param>
+		private void AddConnection(Connection connection, bool addToUI)
+		{
+			Connections.Add(connection);
+
+			if (addToUI)
+				connection.AddToUICollection(WorkspaceCanvas.Children);
+
+			connection.Left.AddConnectionTo(connection);
+
+			// TODO CORE new simulation after added connection ?
+			connection.Right.AddConnectionFrom(connection, false);
+		}
+
+		/// <summary>
+		/// start drawing new connection from source node and its output anchor
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		/// <param name="sourceNode"></param>
+		/// <param name="anchorName"></param>
+		private void StarDrawingNewConnection(Point mousePosition, Node sourceNode, string anchorName)
+		{
+			NewConnection = new Connection(sourceNode, null, anchorName, null);
+
+			var userControlPosition = sourceNode.TranslatePoint(new Point(), WorkspaceCanvas);
+			var anchorPosition = sourceNode.GetRelativeAnchorPosition(anchorName);
+
+			NewConnection.Update(new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y), mousePosition);
+			NewConnection.AddToUICollection(WorkspaceCanvas.Children);
+
+			Cursor = Cursors.Hand;
+		}
+
+		/// <summary>
+		/// update new connection
+		/// </summary>
+		private void DrawNewConnection(Point mousePosition)
+		{
+			NewConnection.Update(null, mousePosition);
+		}
+
+		/// <summary>
+		/// start moving existing connection by dragging its ending anchor
+		/// </summary>
+		/// <param name="node"></param>
+		/// <param name="anchorName"></param>
+		private void StartMovingConnection(Node node, string anchorName)
+		{
+			NewConnection = Connections.SingleOrDefault(c => node == c.Right && c.RightAnchorName == anchorName);
+			if (NewConnection != null)
+			{
+				Connections.Remove(NewConnection);
+
+				NewConnection.Left.RemoveConnection(NewConnection);
+				NewConnection.Right.RemoveConnection(NewConnection);
+
+				NewConnection.Right = null;
+				NewConnection.RightAnchorName = null;
+
+				Cursor = Cursors.Hand;
+			}
+		}
+
+		/// <summary>
+		/// stop drawing new connection
+		/// </summary>
+		private void StopDrawingNewConnection()
+		{
+			var anchor = Mouse.DirectlyOver as FrameworkElement;
+			var elementControl = GetNodeFromAnchor(anchor);
+
+			if (anchor.Name != null && anchor.Name.StartsWith(Node.InputAnchorPrefix) && elementControl != null && CheckConnectionInProgress(elementControl, anchor.Name))
+			{
+				// finalize new connection
+				NewConnection.Right = elementControl;
+				NewConnection.RightAnchorName = anchor.Name;
+
+				var userControlPosition = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
+				var anchorPosition = elementControl.GetRelativeAnchorPosition(anchor.Name);
+
+				NewConnection.Update(null, new Point(userControlPosition.X + anchorPosition.X, userControlPosition.Y + anchorPosition.Y));
+
+				AddConnection(NewConnection, false);
+			}
+			else
+			{
+				// remove existing connection
+				NewConnection.RemoveFromUICollection(WorkspaceCanvas.Children);
+
+				// TODO CORE new simulation after removed connection ?
+				//NewSimulation();
+			}
+
+			NewConnection = null;
+			Cursor = Cursors.Arrow;
+		}
+
+		#endregion
+
+		#region selection rectangle
+
+		private Rectangle SelectionRectangle { get; set; } = null;
+		private Point SelectionRectangleStart { get; set; }
+
+		/// <summary>
+		/// start drawing selection rectangle
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		private void StartSelection(Point mousePosition)
+		{
+			SelectionRectangleStart = mousePosition;
+			SelectionRectangle = new Rectangle
+			{
+				Fill = new SolidColorBrush(Color.FromArgb(0x20, 0x4b, 0x81, 0xd8)),
+				Stroke = new SolidColorBrush(Color.FromArgb(0x70, 0x4b, 0x81, 0xd8))
+			};
+
+			WorkspaceCanvas.Children.Add(SelectionRectangle);
+			Canvas.SetLeft(SelectionRectangle, SelectionRectangleStart.X);
+			Canvas.SetTop(SelectionRectangle, SelectionRectangleStart.Y);
+
+			// deselect all nodes
+			foreach (var element in WorkspaceCanvas.Children)
+				(element as Node)?.Select(false);
+		}
+
+		/// <summary>
+		/// update selection rectangle
+		/// </summary>
+		/// <param name="mousePosition"></param>
+		private void UpdateSelection(Point mousePosition)
+		{
+			var newWidth = mousePosition.X - SelectionRectangleStart.X;
+			var newHeight = mousePosition.Y - SelectionRectangleStart.Y;
+
+			if (newWidth > 0)
+				SelectionRectangle.Width = newWidth;
+			else if (newWidth < 0)
+			{
+				SelectionRectangle.Width = -newWidth;
+				Canvas.SetLeft(SelectionRectangle, mousePosition.X);
+			}
+
+			if (newHeight > 0)
+				SelectionRectangle.Height = newHeight;
+			else if (newHeight < 0)
+			{
+				SelectionRectangle.Height = -newHeight;
+				Canvas.SetTop(SelectionRectangle, mousePosition.Y);
+			}
+
+			var selectionTopLeft = new Point(Canvas.GetLeft(SelectionRectangle), Canvas.GetTop(SelectionRectangle));
+			var selectionBottomRight = new Point(selectionTopLeft.X + SelectionRectangle.ActualWidth, selectionTopLeft.Y + SelectionRectangle.ActualHeight);
+			foreach (FrameworkElement element in WorkspaceCanvas.Children)
+			{
+				//var elementTopLeft = new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
+				var elementTopLeft = element.TranslatePoint(new Point(), WorkspaceCanvas);
+
+				//var elementBottomRight = new Point(elementTopLeft.X + element.ActualWidth, elementTopLeft.Y + element.ActualHeight);
+				var elementBottomRight = element.TranslatePoint(new Point(element.ActualWidth * Scale, element.ActualHeight * Scale), WorkspaceCanvas);
+
+				(element as Node)?.Hilight(
+					selectionTopLeft.X < elementTopLeft.X && elementBottomRight.X < selectionBottomRight.X &&
+					selectionTopLeft.Y < elementTopLeft.Y && elementBottomRight.Y < selectionBottomRight.Y
+					);
+			}
+		}
+
+		/// <summary>
+		/// stop drawing selection rectangle
+		/// </summary>
+		/// <param name="cancelled"></param>
+		private void StopSelection(bool cancelled = false)
+		{
+			foreach (FrameworkElement element in WorkspaceCanvas.Children)
+			{
+				(element as Node)?.Select((element as Node).Hilighted && !cancelled);
+				if (cancelled)
+					(element as Node)?.Hilight(false);
+			}
+
+			WorkspaceCanvas.Children.Remove(SelectionRectangle);
+			SelectionRectangle = null;
+		}
+
+		#endregion
 
 		private void MoveWorkspace(Vector offset)
 		{
 			DrawGrid();
 
 			foreach (var node in Nodes)
-				MoveControl(node, offset);
+				MoveNode(node, offset);
 		}
 
-		private Node GetElementControl(FrameworkElement element)
+		private Node GetNodeFromAnchor(FrameworkElement anchor)
 		{
-			if (element == null)
+			if (anchor == null)
 				return null;
 
-			if (element is Node)
-				return element as Node;
+			if (anchor is Node)
+				return anchor as Node;
 
-			while (element?.Parent != null)
+			while (anchor?.Parent != null)
 			{
-				if (element is Node)
-					return element as Node;
+				if (anchor is Node)
+					return anchor as Node;
 
-				element = element.Parent as FrameworkElement;
+				anchor = anchor.Parent as FrameworkElement;
 			}
 
 			return null;
 		}
 
+		public void RemoveAllNodesFromWorkspace()
+		{
+			var toRemove = Nodes.ToArray();
+			foreach (var control in toRemove)
+				RemoveNodeFromWorkspace(control);
+		}
+
+		public void RemoveNodeFromWorkspace(Node node)
+		{
+			if (node == null)
+				return;
+
+			node.Remove();
+
+			Nodes.Remove(node);
+			WorkspaceCanvas.Children.Remove(node);
+		}
+
+		private Node AddNodeToWorkspace(string nodeType, Point position)
+		{
+			Type type = null;
+			if (ToolBoxStorage.ContainsKey(nodeType))
+				type = ToolBoxStorage[nodeType];
+			else
+				type = ToolBoxStorage.SingleOrDefault(f => f.Value.FullName == nodeType).Value;
+
+			if (type == null)
+				return null;
+
+			var newNode = new Node(Activator.CreateInstance(type) as NodeBase);
+			if (newNode == null)
+				return null;
+
+			Canvas.SetLeft(newNode, position.X);
+			Canvas.SetTop(newNode, position.Y);
+
+			WorkspaceCanvas.Children.Add(newNode);
+			WorkspaceCanvas.UpdateLayout();
+			Nodes.Add(newNode);
+
+			return newNode;
+		}
+
+		#region simulation
+
+		/// <summary>
+		/// start new simulation
+		/// </summary>
+		private void NewSimulation()
+		{
+			MessagesBox.Text = null;
+
+			var worker = new BackgroundWorker
+			{
+				WorkerReportsProgress = true
+			};
+
+			worker.DoWork += OnSimulation;
+			worker.ProgressChanged += SimulationProgressChanged;
+
+			worker.RunWorkerAsync();
+		}
+
+		/// <summary>
+		/// simulation started
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnSimulation(object sender, DoWorkEventArgs e)
 		{
 			try
@@ -1086,167 +1259,20 @@ namespace Ujeby.UgUi
 			}
 		}
 
+		/// <summary>
+		/// simulation progress changed
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void SimulationProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
 			//StatusBarProgress.Value = e.ProgressPercentage;
+			// TODO UI show simulation progress in statuis bar
 		}
 
-		public void RemoveAllControls()
-		{
-			var toRemove = Nodes.ToArray();
-			foreach (var control in toRemove)
-				RemoveControl(control);
-		}
+		#endregion
 
-		public void RemoveControl(Node control)
-		{
-			if (control == null)
-				return;
-
-			control.Remove();
-
-			Nodes.Remove(control);
-			WorkspaceCanvas.Children.Remove(control);
-		}
-
-		private void AddConnection(Connection connection, bool addToUI)
-		{
-			Connections.Add(connection);
-
-			if (addToUI)
-				connection.AddToUICollection(WorkspaceCanvas.Children);
-
-			connection.Left.AddConnectionTo(connection);
-
-			// TODO CORE new simulation after added connection ?
-			connection.Right.AddConnectionFrom(connection, false);
-		}
-
-		private Node AddNodeControl(string nodeType, Point position)
-		{
-			Type type = null;
-			if (ToolBoxStorage.ContainsKey(nodeType))
-				type = ToolBoxStorage[nodeType];
-			else
-				type = ToolBoxStorage.SingleOrDefault(f => f.Value.FullName == nodeType).Value;
-
-			if (type == null)
-				return null;
-
-			var control = new Node(Activator.CreateInstance(type) as NodeBase);
-			if (control == null)
-				return null;
-
-			Canvas.SetLeft(control, position.X);
-			Canvas.SetTop(control, position.Y);
-
-			WorkspaceCanvas.Children.Add(control);
-			WorkspaceCanvas.UpdateLayout();
-			Nodes.Add(control);
-
-			return control;
-		}
-
-		/// <summary>
-		/// Initialize ControlsTreeView with functions from Editor.FunctionsContainer
-		/// </summary>
-		private void InitializeControlsTreeView()
-		{
-			if (ToolBoxStorage.Count < 1)
-				return;
-
-			var parentTreeViewItem = null as TreeViewItem;
-			foreach (var element in ToolBoxStorage)
-			{
-				var groupName = element.Key.Split('.').First();
-				var elementName = element.Key.Split('.').Last();
-
-				if (parentTreeViewItem == null || groupName != parentTreeViewItem.Header as string)
-				{
-					parentTreeViewItem = new TreeViewItem()
-					{
-						Header = groupName,
-						Foreground = new SolidColorBrush(Node.TextForegroundHilighted),
-						IsExpanded = true
-					};
-					ControlsTreeView.Items.Add(parentTreeViewItem);
-				}
-
-				var newItem = new TreeViewItem()
-				{
-					Header = elementName,
-					Foreground = new SolidColorBrush(Node.TextForeground),
-				};
-				newItem.MouseMove += ControlsTreeView_MouseMove;
-
-				parentTreeViewItem.Items.Add(newItem);
-			}
-		}
-
-		private void ControlsTreeView_MouseMove(object sender, MouseEventArgs e)
-		{
-			try
-			{
-				if (e.LeftButton == MouseButtonState.Pressed)
-				{
-					var item = sender as TreeViewItem;
-
-					// element full name = Namespace.Name
-					var data = $"{ (item.Parent as TreeViewItem).Header as string }.{ item.Header as string }";
-
-					DragDrop.DoDragDrop(item, data, DragDropEffects.Move);
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void NewSimulation()
-		{
-			MessagesBox.Text = null;
-
-			var worker = new BackgroundWorker
-			{
-				WorkerReportsProgress = true
-			};
-
-			worker.DoWork += OnSimulation;
-			worker.ProgressChanged += SimulationProgressChanged;
-
-			worker.RunWorkerAsync();
-		}
-
-		private void MoveControls(Node elementControl, Vector delta)
-		{
-			MoveControl(elementControl, delta);
-
-			if (elementControl.Selected)
-			{
-				// move other selected elements
-				foreach (var control in WorkspaceCanvas.Children)
-				{
-					if (control == elementControl)
-						continue;
-
-					var otherElementControl = control as Node;
-					if (otherElementControl != null && otherElementControl.Selected)
-						MoveControl(otherElementControl, delta);
-				}
-			}
-		}
-
-		private void MoveControl(Node elementControl, Vector delta)
-		{
-			var currentPosition = new Point(Canvas.GetLeft(elementControl), Canvas.GetTop(elementControl));
-			Canvas.SetLeft(elementControl, currentPosition.X + delta.X);
-			Canvas.SetTop(elementControl, currentPosition.Y + delta.Y);
-
-			var transformedTopLeft = elementControl.TranslatePoint(new Point(), WorkspaceCanvas);
-
-			elementControl.UpdateConnections(new Point(transformedTopLeft.X + delta.X, transformedTopLeft.Y + delta.Y));
-		}
+		#region messages box
 
 		private void MessagesBoxHeader_MouseEnter(object sender, MouseEventArgs e)
 		{
@@ -1342,28 +1368,6 @@ namespace Ujeby.UgUi
 			MessagesBoxCollapsed = !MessagesBoxCollapsed;
 		}
 
-		private void ToolBoxHeader_MouseEnter(object sender, MouseEventArgs e)
-		{
-			try
-			{
-				ToolBoxHeader.Background = new SolidColorBrush(Color.FromArgb(0xff, 0x60, 0x60, 0x80));
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
-
-		private void ToolBoxHeader_MouseLeave(object sender, MouseEventArgs e)
-		{
-			try
-			{
-				ToolBoxHeader.Background = new SolidColorBrush(Color.FromArgb(0xff, 0x50, 0x50, 0x70));
-			}
-			catch (Exception ex)
-			{
-				Log.WriteLine(ex.ToString());
-			}
-		}
+		#endregion
 	}
 }
