@@ -94,6 +94,15 @@
 					 Background="Transparent" 
 					 Text="Node" />
 			</Border>
+			<!--<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+				HorizontalAlignment="Left" VerticalAlignment="Center"
+				BorderThickness="0" Width="24" Padding="6">
+				<Polygon Stretch="Fill" 
+					Fill="Black"
+					StrokeThickness="1" Stroke="Black"
+					Points="10,100 60,10 110,100" />
+			</Border>-->
+			
 		</Grid>
 
 	</DockPanel>

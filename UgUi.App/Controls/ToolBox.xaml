@@ -18,12 +18,31 @@
 			<Border DockPanel.Dock="Top">
 				<Label Foreground="#c0c0c0" Background="#aa484848" FontFamily="Consolas" Name="Header">Toolbox</Label>
 			</Border>
-			<TextBox DockPanel.Dock="Top" Name="Search" 
-				BorderThickness="0"
-				FontFamily="Consolas" FontSize="12"
-				Background="#cc242424" Foreground="#c0c0c0"
-				Padding="8"
-				TextChanged="Search_TextChanged" />
+
+			<Grid DockPanel.Dock="Top">
+				<TextBox Name="Search" 
+					BorderThickness="0" Padding="8"
+					FontFamily="Consolas" FontSize="12"
+					Background="#cc242424" Foreground="#c0c0c0"
+					TextChanged="Search_TextChanged" />
+				<TextBlock Text="Search ..." Height="24" FontSize="12" FontFamily="Consolas">
+					<TextBlock.Style>
+						<Style TargetType="{x:Type TextBlock}">
+							<Setter Property="Visibility" Value="Collapsed"/>
+							<Setter Property="Foreground" Value="#808080"/>
+							<Setter Property="Visibility" Value="Collapsed"/>
+							<Setter Property="IsHitTestVisible" Value="False"/>
+							<Setter Property="Padding" Value="10,5,8,8"/>
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Text, ElementName=Search}" Value="">
+									<Setter Property="Visibility" Value="Visible"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</TextBlock.Style>
+				</TextBlock>
+			</Grid>
+
 			<Separator DockPanel.Dock="Top"  />
 			<ListView Name="ElementList" 
 				  FontFamily="Consolas" FontSize="12"

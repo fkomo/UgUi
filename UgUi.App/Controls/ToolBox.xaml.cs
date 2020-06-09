@@ -78,6 +78,5 @@ namespace Ujeby.UgUi.Controls
 		}
 
 		// TODO TOOLBOX allow up/down cursor in ElementList while changing Search TextBox.Text
-		// TODO TOOLBOX show tooltip for Search when no value is entered
 	}
 }
