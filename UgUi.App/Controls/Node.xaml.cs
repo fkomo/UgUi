@@ -75,6 +75,7 @@ namespace Ujeby.UgUi.Controls
 		public static Color InputBackground = Color.FromArgb(0xff, 0x30, 0x30, 0x30);
 		public static Color TextForeground = Color.FromArgb(0xff, 0xc0, 0xc0, 0xc0);
 		public static Color TextForegroundHilighted = Colors.White;
+		public static Effect LabelEffect = new DropShadowEffect { BlurRadius = 4, Color = Colors.Black, ShadowDepth = 0 };
 
 		#endregion
 
@@ -222,8 +223,9 @@ namespace Ujeby.UgUi.Controls
 					VerticalAlignment = VerticalAlignment.Center,
 					Name = LabelPrefix + inputAnchorProperty,
 					FontFamily = new FontFamily("Consolas"),
+					Effect = LabelEffect,
+					Content = inputDisplayName,
 				};
-				label.Content = inputDisplayName;
 
 				Grid.SetRow(label, row);
 				Grid.SetColumn(label, 1);
@@ -479,8 +481,9 @@ namespace Ujeby.UgUi.Controls
 					HorizontalAlignment = HorizontalAlignment.Right,
 					Name = LabelPrefix + outputAnchorProperty,
 					FontFamily = new FontFamily("Consolas"),
+					Effect = LabelEffect,
+					Content = outputDisplayName,
 				};
-				label.Content = outputDisplayName;
 
 				Grid.SetRow(label, row);
 				if (anchorOnly)
@@ -523,6 +526,20 @@ namespace Ujeby.UgUi.Controls
 
 				outputRows[row - firstRow] = true;
 			}
+
+			//MainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+			//var customDouble = new CustomNumberInput();
+			//Grid.SetRow(customDouble, MainPanel.RowDefinitions.Count - 1);
+			//Grid.SetColumn(customDouble, 1);
+			//Grid.SetColumnSpan(customDouble, 2);
+			//MainPanel.Children.Add(customDouble);
+
+			//MainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 30 });
+			//var customText = new CustomTextInput();
+			//Grid.SetRow(customText, MainPanel.RowDefinitions.Count - 1);
+			//Grid.SetColumn(customText, 1);
+			//Grid.SetColumnSpan(customText, 2);
+			//MainPanel.Children.Add(customText);
 		}
 
 		internal void SetCustomName(string name)

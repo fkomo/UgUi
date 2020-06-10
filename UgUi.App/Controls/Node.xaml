@@ -8,6 +8,8 @@
 
 	<UserControl.Resources>
 
+		<DropShadowEffect x:Key="BlackGlow" BlurRadius="2" Color="White" ShadowDepth="0" />
+
 		<Storyboard x:Key="Blink">
 			<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To="0.5" Duration="0:0:0.2" />
 			<DoubleAnimation Storyboard.TargetProperty="(Opacity)" To="1.0" Duration="0:0:0.2" />

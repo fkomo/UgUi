@@ -15,6 +15,12 @@ using System.Windows.Shapes;
 
 namespace Ujeby.UgUi.Controls
 {
+	public class CustomTextInputViewModel
+	{
+		public string Value { get; set; }
+		public string Name { get; set; } = "Value";
+	}
+
 	/// <summary>
 	/// Interaction logic for CustomTextInput.xaml
 	/// </summary>
