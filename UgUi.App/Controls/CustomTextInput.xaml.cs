@@ -27,6 +27,7 @@ namespace Ujeby.UgUi.Controls
 	public partial class CustomTextInput : UserControl
 	{
 		// TODO UI INPUT CustomTextInput - show label/tooltip when no input is entered - possible button (file/folder dialog) ?
+		// TODO UI INPUT CustomTextInput - resizable
 
 		public CustomTextInput()
 		{

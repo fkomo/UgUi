@@ -528,11 +528,18 @@ namespace Ujeby.UgUi.Controls
 			}
 
 			//MainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-			//var customDouble = new CustomNumberInput();
+			//var customDouble = new CustomFloatingInput();
 			//Grid.SetRow(customDouble, MainPanel.RowDefinitions.Count - 1);
 			//Grid.SetColumn(customDouble, 1);
 			//Grid.SetColumnSpan(customDouble, 2);
 			//MainPanel.Children.Add(customDouble);
+
+			//MainPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+			//var customInteger = new CustomIntegerInput();
+			//Grid.SetRow(customInteger, MainPanel.RowDefinitions.Count - 1);
+			//Grid.SetColumn(customInteger, 1);
+			//Grid.SetColumnSpan(customInteger, 2);
+			//MainPanel.Children.Add(customInteger);
 
 			//MainPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 30 });
 			//var customText = new CustomTextInput();

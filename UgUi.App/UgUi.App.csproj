@@ -88,7 +88,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\CustomNumberInput.xaml">
+    <Page Include="Controls\CustomIntegerInput.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\CustomFloatingInput.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -120,8 +124,11 @@
     <Compile Include="Controls\CustomColorPicker.xaml.cs">
       <DependentUpon>CustomColorPicker.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\CustomNumberInput.xaml.cs">
-      <DependentUpon>CustomNumberInput.xaml</DependentUpon>
+    <Compile Include="Controls\CustomIntegerInput.xaml.cs">
+      <DependentUpon>CustomIntegerInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CustomFloatingInput.xaml.cs">
+      <DependentUpon>CustomFloatingInput.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\CustomTextInput.xaml.cs">
       <DependentUpon>CustomTextInput.xaml</DependentUpon>
@@ -141,6 +148,7 @@
     </Compile>
     <Compile Include="Behaviors\ResizeBehavior.cs" />
     <Compile Include="Controls\Connection.cs" />
+    <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="Workspace.xaml.cs">
       <DependentUpon>Workspace.xaml</DependentUpon>
       <SubType>Code</SubType>

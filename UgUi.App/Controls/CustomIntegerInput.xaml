@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="Ujeby.UgUi.Controls.CustomIntegerInput"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:model="clr-namespace:Ujeby.UgUi.Controls"
+             mc:Ignorable="d" 
+             Height="20" 
+			 Width="130">
+
+	<UserControl.DataContext>
+		<model:CustomIntegerInputViewModel />
+	</UserControl.DataContext>
+
+	<UserControl.Resources>
+
+		<DropShadowEffect x:Key="BlackGlow" BlurRadius="4" Color="Black" ShadowDepth="0" />
+
+		<Style TargetType="TextBox" x:Key="CustomTextBox" >
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#ffc0c0c0"/>
+			<Setter Property="Padding" Value="2,2,4,2"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="FontFamily" Value="Consolas"/>
+			<Setter Property="FontSize" Value="12"/>
+		</Style>
+
+		<Style TargetType="Label" x:Key="CustomLabel" >
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#c0c0c0"/>
+			<Setter Property="Padding" Value="4,2,2,2"/>
+			<Setter Property="FontFamily" Value="Consolas"/>
+			<Setter Property="FontSize" Value="12"/>
+		</Style>
+
+	</UserControl.Resources>
+
+	<Border Name="MainBorder" BorderThickness="1" BorderBrush="#ee202020" Background="#ff303030">
+		<Grid>
+			
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="64" />
+				<ColumnDefinition Width="64" />
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition />
+			</Grid.RowDefinitions>
+
+			<Label Name="LabelName" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Left"
+				Style="{StaticResource CustomLabel}"
+				Effect="{StaticResource BlackGlow}"
+				Content="{Binding Name}"  />
+
+			<TextBox Name="NumberValue" Grid.Row="0" Grid.Column="1" HorizontalContentAlignment="Right"
+				Style="{StaticResource CustomTextBox}"
+				Effect="{StaticResource BlackGlow}"
+				ToolTip="{Binding Name}"					 
+				Text="{Binding Value, StringFormat={}{0:0}}" />
+
+		</Grid>
+	</Border>
+	
+</UserControl>

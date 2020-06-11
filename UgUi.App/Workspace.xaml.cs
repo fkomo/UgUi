@@ -26,7 +26,7 @@ namespace Ujeby.UgUi
 	public partial class Workspace : Window
 	{
 		// TODO WORKSPACE undo / redo action
-		// TODO WORKSPACE add multiple nodes to group / package
+		// TODO WORKSPACE group multiple nodes to group / package
 
 		/// <summary>
 		/// connection that is currently created
@@ -1267,7 +1267,7 @@ namespace Ujeby.UgUi
 		private void SimulationProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
 			//StatusBarProgress.Value = e.ProgressPercentage;
-			// TODO UI show simulation progress in statuis bar
+			// TODO UI show simulation progress in status bar
 		}
 
 		#endregion
