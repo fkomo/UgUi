@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="NodeBase.cs" />
+    <Compile Include="Nodes\Abstract\BinaryOperatorEx.cs" />
     <Compile Include="Nodes\Abstract\BinaryOperator.cs" />
     <Compile Include="Nodes\Abstract\CompressNode.cs" />
     <Compile Include="Nodes\Abstract\HashNode.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Nodes\Encoding\HexToInt.cs" />
     <Compile Include="Nodes\Encoding\BinToHex.cs" />
     <Compile Include="Nodes\Encoding\ASCII.cs" />
+    <Compile Include="Nodes\Generators\DateTimeUTC.cs" />
     <Compile Include="Nodes\Generators\SelfSignedCertificate.cs" />
     <Compile Include="Nodes\Generators\RandomBytes.cs" />
     <Compile Include="Nodes\IO\Process.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Nodes\Logical\Not.cs" />
     <Compile Include="Nodes\Logical\Or.cs" />
     <Compile Include="Nodes\Logical\And.cs" />
+    <Compile Include="Nodes\Math\AddTime.cs" />
     <Compile Include="Nodes\Math\GreaterThan.cs" />
     <Compile Include="Nodes\Math\LessThan.cs" />
     <Compile Include="Nodes\Math\Equals.cs" />
@@ -105,6 +108,8 @@
     <Compile Include="Nodes\Network\HttpPOST.cs" />
     <Compile Include="Nodes\Network\HttpGET.cs" />
     <Compile Include="Nodes\Strings\Compare.cs" />
+    <Compile Include="Nodes\Strings\DateTimeFormat.cs" />
+    <Compile Include="Nodes\Strings\Replace.cs" />
     <Compile Include="Nodes\Strings\RemovePunctuation.cs" />
     <Compile Include="Nodes\Encoding\GuidToOracleRAW.cs" />
     <Compile Include="Nodes\Encoding\Unicode.cs" />
@@ -153,6 +158,7 @@
     <Compile Include="Nodes\Types\Integer.cs" />
     <Compile Include="Nodes\Types\Double.cs" />
     <Compile Include="Nodes\Types\String.cs" />
+    <Compile Include="Nodes\Types\TimeSpan.cs" />
     <Compile Include="Nodes\Types\Vector2.cs" />
     <Compile Include="Nodes\Types\Vector3.cs" />
     <Compile Include="Nodes\Types\Vector4.cs" />
